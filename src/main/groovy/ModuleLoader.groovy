@@ -1,7 +1,7 @@
 class ModuleLoader {
-	static void load(dir) {
+	static void load(project, dir) {
 		def name = "modules"
-		def source = new File(dir, name)
+		def source = project.file("${dir}/${name}");
 		if (!source.exists()) {
 			throw new Error("Could not load module definitions: ${dir}/${name}")
 		}

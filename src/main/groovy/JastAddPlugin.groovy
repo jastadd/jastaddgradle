@@ -4,8 +4,8 @@ import org.gradle.api.file.*
 
 class JastAddPlugin implements Plugin<Project> {
 
-	static def modules(list) {
-		list.each { ModuleLoader.load it }
+	static def modules(project, list) {
+		list.each { ModuleLoader.load(project, it) }
 	}
 
 	void apply(Project project) {
