@@ -97,7 +97,7 @@ class JastAddPlugin implements Plugin<Project> {
 			doLast {
 				ant.mkdir dir: "${project.jastaddj.genResDir}"
 				ant.propertyfile(file: "${project.jastaddj.genResDir}/JavaSupportLevel.properties") {
-					entry(key: "javaVersion", value: "${project.jastaddj.javaVersion}")
+					entry(key: "javaVersion", value: JastAddModule.get(project.jastaddj.module).javaVersion())
 				}
 			}
 		}
