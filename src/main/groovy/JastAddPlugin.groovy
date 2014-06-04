@@ -5,6 +5,17 @@ import org.gradle.api.file.*
 class JastAddPlugin implements Plugin<Project> {
 
 	void apply(Project project) {
+		project.configurations.create('jastadd')
+		project.configurations.create('jflex')
+		project.configurations.create('jastaddParser')
+		project.configurations.create('beaver')
+
+		project.dependencies {
+			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
+			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
+			beaver group: 'net.sf.beaver', name: 'beaver-ant', version: '0.9.11'
+		}
+
 		project.task("jastaddTest") {
 			doLast {
 				def specFiles = project.files(
@@ -23,7 +34,7 @@ class JastAddPlugin implements Plugin<Project> {
 				)
 				ant.mkdir(dir: project.file(outdir))
 				ant.taskdef(name: "jastadd", classname: "org.jastadd.JastAddTask",
-					classpath: "${project.jastadd.toolsDir}/jastadd2.jar") { }
+					classpath: project.configurations.jastadd.asPath) { }
 				ant.jastadd(
 					package: project.jastadd.astPackage,
 					rewrite: true,
@@ -50,7 +61,7 @@ class JastAddPlugin implements Plugin<Project> {
 				}
 				ant.mkdir(dir: "${project.jastadd.genDir}/scanner")
 				ant.taskdef(name: "jflex", classname: "JFlex.anttask.JFlexTask",
-					classpath: "${project.jastadd.toolsDir}/JFlex.jar")
+					classpath: project.configurations.jflex.asPath)
 				ant.jflex(file: "${project.jastadd.tmpDir}/scanner/JavaScanner.flex",
 					outdir: project.file("${project.jastadd.genDir}/scanner"),
 					nobak: true)
@@ -71,15 +82,14 @@ class JastAddPlugin implements Plugin<Project> {
 				}
 				ant.java(classname: "Main", fork: true) {
 					classpath {
-						pathelement(path: "${project.jastadd.toolsDir}/JastAddParser.jar")
-						pathelement(path: "${project.jastadd.toolsDir}/beaver-rt.jar")
+						pathelement(path: project.configurations.jastaddParser.asPath)
 					}
 					arg(value: "${project.jastadd.tmpDir}/parser/JavaParser.all")
 					arg(value: "${project.jastadd.tmpDir}/parser/JavaParser.beaver")
 				}
 				ant.mkdir(dir: "${project.jastadd.genDir}/parser")
 				ant.taskdef(name: "beaver", classname: "beaver.comp.run.AntTask",
-					classpath: "${project.jastadd.toolsDir}/beaver-ant.jar")
+					classpath: project.configurations.beaver.asPath)
 				ant.beaver(file: "${project.jastadd.tmpDir}/parser/JavaParser.beaver",
 					destdir: "${project.jastadd.genDir}/parser",
 					terminalNames: true,
@@ -128,9 +138,6 @@ class JastAddExtension {
 
 	String astPackage
 	String sourceDir
-	String toolsDir
-	String resourceDir
-	String binDir
 	String tmpDir
 	String genDir
 	String genResDir
