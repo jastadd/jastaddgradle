@@ -6,13 +6,15 @@ class JastAddPlugin implements Plugin<Project> {
 
 	void apply(Project project) {
 		project.configurations.create('jastadd')
-		project.configurations.create('jflex')
 		project.configurations.create('jastaddParser')
+		project.configurations.create('jflex')
 		project.configurations.create('beaver')
 
 		project.dependencies {
-			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
+			jastadd group: 'org.jastadd', name: 'jastadd2', version: '2.1.6'
+			jastaddParser group: 'org.jastadd', name: 'JastAddParser', version: '1.0.2-17'
 			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
+			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
 			beaver group: 'net.sf.beaver', name: 'beaver-ant', version: '0.9.11'
 		}
 
