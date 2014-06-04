@@ -2,6 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 project.version = '1.2'
+project.group = 'org.jastadd'
 
 dependencies {
 	compile gradleApi()
@@ -24,7 +25,6 @@ uploadArchives {
 	repositories.mavenDeployer {
 		configuration = configurations.deployerJars
 		repository(url: "scp://login.cs.lth.se/cs/jastadd/mvn/")
-		pom.groupId = 'org.jastadd'
 	}
 }
 
