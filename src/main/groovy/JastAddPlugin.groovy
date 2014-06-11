@@ -11,7 +11,7 @@ class JastAddPlugin implements Plugin<Project> {
 		project.configurations.create('beaver')
 
 		project.dependencies {
-			jastadd group: 'org.jastadd', name: 'jastadd2', version: '2.1.7'
+			jastadd group: 'org.jastadd', name: 'jastadd2', version: '2.1.8'
 			jastaddParser group: 'org.jastadd', name: 'JastAddParser', version: '1.0.2-17'
 			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
