@@ -119,17 +119,23 @@ class JastAddPlugin implements Plugin<Project> {
 		project.compileJava.dependsOn 'generateJava'
 		project.processResources.dependsOn 'setSupportLevel'
 
-		project.extensions.create("jastadd", JastAddExtension)
+		project.extensions.create("jastadd", JastAddExtension, project)
 	}
 
 }
 
 class JastAddExtension {
+	Project project
+
+	JastAddExtension(Project project) {
+		this.project = project
+	}
+
 	/**
 	 * Load modules.
 	 */
-	void modules(project, list) {
-		list.each { ModuleLoader.load(project, it) }
+	void modules(String... modules) {
+		modules.each { ModuleLoader.load(project, it) }
 	}
 
 	/** module name */

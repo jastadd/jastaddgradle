@@ -1,2 +1,8 @@
 /build
 /.gradle
+
+# local test Maven repository
+/repo
+
+# vi
+*.swp

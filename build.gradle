@@ -1,7 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-project.version = '1.3'
+project.version = '1.4'
 project.group = 'org.jastadd'
 
 dependencies {
@@ -25,6 +25,8 @@ uploadArchives {
 	repositories.mavenDeployer {
 		configuration = configurations.deployerJars
 		repository(url: "scp://login.cs.lth.se/cs/jastadd/mvn/")
+		// local test
+		//repository(url: uri('./repo'))
 	}
 }
 
