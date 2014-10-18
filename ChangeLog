@@ -1,0 +1,12 @@
+1.5 - 2014-10-18
+
+    * JastAdd plugin now adds beaver-rt dependency to compile group
+    * New scanner object added to jastadd extension
+    * scanner.genDir (default=jastadd.genDir/scanner) specifies location of
+    generated scanner
+    * New parser object added to jastadd extension
+    * parser.name (default=JavaParser) specifies name of generated parser
+    * parser.genDir (default=jastadd.genDir/parser) specifies location of
+    generated parser
+    * JavaSupportLevel.properties is only created if jastadd.genResDir is not
+    null
