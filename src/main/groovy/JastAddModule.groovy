@@ -27,7 +27,8 @@ class JastAddModule {
 
 	String basedir = "."
 	String name
-	String javaVersion = null
+	String moduleName
+	String moduleVariant
 	Aspect javaAspect = new Aspect()
 	Aspect jastaddAspect = new Aspect()
 	Aspect scannerAspect = new Aspect()
@@ -47,8 +48,12 @@ class JastAddModule {
 		imports += get(name)
 	}
 
-	def javaVersion(version) {
-		javaVersion = version
+	def moduleName(version) {
+		moduleName = version
+	}
+
+	def moduleVariant(version) {
+		moduleVariant = version
 	}
 
 	static def get(name) {
@@ -80,16 +85,20 @@ class JastAddModule {
 		clos()
 	}
 
-	String javaVersion() {
-		if (javaVersion != null) {
-			return javaVersion
-		} else {
-			for (JastAddModule imp : imports) {
-				String ver = imp.javaVersion()
-				if (ver != null) {
-					return ver
-				}
-			}
+	String moduleName() {
+		if (moduleName) return moduleName
+		for (JastAddModule imp : imports) {
+			String value = imp.moduleName()
+			if (value) return value
+		}
+		null
+	}
+
+	String moduleVariant() {
+		if (moduleVariant) return moduleVariant
+		for (JastAddModule imp : imports) {
+			String value = imp.moduleVariant()
+			if (value) return value
 		}
 		null
 	}

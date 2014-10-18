@@ -1,3 +1,14 @@
+1.6 - 2014-10-18
+
+    * Renamed javaVersion to moduleName.
+    * Added moduleVariant property for JastAddModule.
+    * The moduleName property is written to ModuleName.properties instead of
+    JavaSupportLevel.properties.
+    * Deleted sourceDir property of jastadd domain object.
+    * MavenCentral and JastAdd repositories are added to the project by
+    JastAddPlugin.
+    * Fixed problem with cleanGen task
+
 1.5 - 2014-10-18
 
     * JastAdd plugin now adds beaver-rt dependency to compile group

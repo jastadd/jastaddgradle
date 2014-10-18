@@ -10,6 +10,12 @@ class JastAddPlugin implements Plugin<Project> {
 		project.configurations.create('jflex')
 		project.configurations.create('beaver')
 
+		project.repositories {
+			mavenCentral()
+			maven {
+				url 'http://jastadd.org/mvn/'
+			}
+		}
 		project.dependencies {
 			jastadd group: 'org.jastadd', name: 'jastadd2', version: '2.1.8'
 			jastaddParser group: 'org.jastadd', name: 'JastAddParser', version: '1.0.2-17'
@@ -19,6 +25,7 @@ class JastAddPlugin implements Plugin<Project> {
 			compile group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 		}
 
+		// for testing
 		project.task("jastaddTest") {
 			doLast {
 				def specFiles = project.files(
@@ -28,6 +35,7 @@ class JastAddPlugin implements Plugin<Project> {
 			}
 		}
 		project.task("generateJava", dependsOn: [ "scanner", "parser" ]) {
+			description 'generate Java sources from JastAdd aspects'
 			inputs.files { JastAddModule.get(project.jastadd.module).files(project, "jastadd") }
 			outputs.dir { project.file(project.jastadd.genDir) }
 			doLast {
@@ -51,6 +59,7 @@ class JastAddPlugin implements Plugin<Project> {
 			}
 		}
 		project.task("scanner") {
+			description 'generate JFlex scanner'
 			inputs.files { JastAddModule.get(project.jastadd.module).files(project, "scanner") }
 			outputs.dir {
 				def outdir = project.jastadd.scanner.genDir ?: "${project.jastadd.genDir}/scanner"
@@ -77,6 +86,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.task("parser") {
+			description 'generate Beaver parser'
 			inputs.files { JastAddModule.get(project.jastadd.module).files(project, "parser") }
 			outputs.dir {
 				def outdir = project.jastadd.parser.genDir ?: "${project.jastadd.genDir}/parser"
@@ -112,32 +122,39 @@ class JastAddPlugin implements Plugin<Project> {
 			}
 		}
 
-		project.task("setSupportLevel") {
+		// only if jastadd.genResDir is not null
+		project.task("moduleName") {
+			description 'generate a property file with the module name'
 			outputs.dir { project.jastadd.genResDir ? project.file(project.jastadd.genResDir) : null }
 			doLast {
 				if (project.jastadd.genResDir) {
 					ant.mkdir dir: "${project.jastadd.genResDir}"
-					ant.propertyfile(file: "${project.jastadd.genResDir}/JavaSupportLevel.properties") {
-						entry(key: "javaVersion", value: JastAddModule.get(project.jastadd.module).javaVersion())
+					ant.propertyfile(file: "${project.jastadd.genResDir}/ModuleName.properties") {
+						entry(key: "moduleName", value: JastAddModule.get(project.jastadd.module).moduleName())
+						entry(key: "moduleVariant", value: JastAddModule.get(project.jastadd.module).moduleVariant())
 					}
 				}
 			}
 		}
 
 		project.task("cleanGen", type: Delete) {
-			doLast {
-				delete { project.jastadd.genDir }
-				delete { project.jastadd.genResDir }
-				if (project.jastadd.scanner.genDir)
-					delete { project.jastadd.scanner.genDir }
-				if (project.jastadd.parser.genDir)
-					delete { project.jastadd.parser.genDir }
+			description 'remove generated files'
+			delete {
+				def dirs = [
+					project.jastadd.scanner.genDir,
+					project.jastadd.parser.genDir,
+					project.jastadd.genResDir,
+					project.jastadd.genDir,
+					project.jastadd.tmpDir
+				]
+				dirs.removeAll([null])
+				dirs
 			}
 		}
 
 		project.clean.dependsOn 'cleanGen'
 		project.compileJava.dependsOn 'generateJava'
-		project.processResources.dependsOn 'setSupportLevel'
+		project.processResources.dependsOn 'moduleName'
 
 		project.extensions.create("jastadd", JastAddExtension, project)
 	}
@@ -179,7 +196,6 @@ class JastAddExtension {
 	String javaVersion
 
 	String astPackage
-	String sourceDir
 	String tmpDir
 	String genDir
 	String genResDir
