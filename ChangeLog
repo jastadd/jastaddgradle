@@ -1,3 +1,7 @@
+1.8 - 2014-10-18
+
+    * Automatically add module Java sources to build path
+
 1.7 - 2014-10-18
 
     * Removed tmpDir property from jastadd extension - Task.temporaryDir is

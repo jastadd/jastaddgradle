@@ -164,10 +164,14 @@ class JastAddModule {
 			def localExcludes = excludes + excludeFromsLocal.collect{ it[1] }
 			for (include in includes) {
 				File base = componentBasedir(component)
-				files << [ include[0], project.files(project.fileTree(
-					dir: base,
-					include: include[1],
-					excludes: localExcludes)) ]
+				files << [
+					include[0],
+					project.files(project.fileTree(
+						dir: base,
+						include: include[1],
+						excludes: localExcludes)
+					)
+				]
 			}
 		}
 		files
