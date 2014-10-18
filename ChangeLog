@@ -1,3 +1,8 @@
+1.7 - 2014-10-18
+
+    * Removed tmpDir property from jastadd extension - Task.temporaryDir is
+    used in stead
+
 1.6 - 2014-10-18
 
     * Renamed javaVersion to moduleName.

@@ -66,11 +66,10 @@ class JastAddPlugin implements Plugin<Project> {
 				project.file(outdir)
 			}
 			doLast {
-				ant.mkdir(dir: "${project.jastadd.tmpDir}/scanner")
 				def specFiles = project.files(
 					JastAddModule.get(project.jastadd.module).files(project, "scanner")
 				)
-				ant.concat(destfile: "${project.jastadd.tmpDir}/scanner/JavaScanner.flex",
+				ant.concat(destfile: "${temporaryDir}/JavaScanner.flex",
 					binary: true, force: false) {
 					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
@@ -79,7 +78,7 @@ class JastAddPlugin implements Plugin<Project> {
 					classpath: project.configurations.jflex.asPath)
 				def outdir = project.jastadd.scanner.genDir ?: "${project.jastadd.genDir}/scanner"
 				ant.mkdir(dir: project.file(outdir))
-				ant.jflex(file: "${project.jastadd.tmpDir}/scanner/JavaScanner.flex",
+				ant.jflex(file: "${temporaryDir}/JavaScanner.flex",
 					outdir: project.file(outdir),
 					nobak: true)
 			}
@@ -93,12 +92,11 @@ class JastAddPlugin implements Plugin<Project> {
 				project.file(outdir)
 			}
 			doLast {
-				ant.mkdir(dir: project.file(project.jastadd.tmpDir))
 				def specFiles = project.files(
 					JastAddModule.get(project.jastadd.module).files(project, "parser")
 				)
 				def parserName = project.jastadd.parser.name
-				ant.concat(destfile: "${project.jastadd.tmpDir}/parser/${parserName}.all",
+				ant.concat(destfile: "${temporaryDir}/${parserName}.all",
 					binary: true, force: false) {
 					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
@@ -106,15 +104,15 @@ class JastAddPlugin implements Plugin<Project> {
 					classpath {
 						pathelement(path: project.configurations.jastaddParser.asPath)
 					}
-					arg(value: "${project.jastadd.tmpDir}/parser/${parserName}.all")
-					arg(value: "${project.jastadd.tmpDir}/parser/${parserName}.beaver")
+					arg(value: "${temporaryDir}/${parserName}.all")
+					arg(value: "${temporaryDir}/${parserName}.beaver")
 				}
 				ant.mkdir(dir: "${project.jastadd.genDir}/parser")
 				ant.taskdef(name: "beaver", classname: "beaver.comp.run.AntTask",
 					classpath: project.configurations.beaver.asPath)
 				def outdir = project.jastadd.parser.genDir ?: "${project.jastadd.genDir}/parser"
 				ant.mkdir(dir: project.file(outdir))
-				ant.beaver(file: "${project.jastadd.tmpDir}/parser/${parserName}.beaver",
+				ant.beaver(file: "${temporaryDir}/${parserName}.beaver",
 					destdir: outdir,
 					terminalNames: true,
 					compress: false,
@@ -144,8 +142,7 @@ class JastAddPlugin implements Plugin<Project> {
 					project.jastadd.scanner.genDir,
 					project.jastadd.parser.genDir,
 					project.jastadd.genResDir,
-					project.jastadd.genDir,
-					project.jastadd.tmpDir
+					project.jastadd.genDir
 				]
 				dirs.removeAll([null])
 				dirs
@@ -196,7 +193,6 @@ class JastAddExtension {
 	String javaVersion
 
 	String astPackage
-	String tmpDir
 	String genDir
 	String genResDir
 	ScannerConfig scanner = new ScannerConfig()

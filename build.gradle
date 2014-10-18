@@ -1,7 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-project.version = '1.6'
+project.version = '1.7'
 project.group = 'org.jastadd'
 
 dependencies {
