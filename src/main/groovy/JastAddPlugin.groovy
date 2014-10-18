@@ -125,16 +125,19 @@ class JastAddPlugin implements Plugin<Project> {
 			}
 		}
 
-		// only if jastadd.genResDir is not null
-		project.task("moduleName") {
+		// only if jastadd.buildInfoDir is not null
+		project.task("buildInfo") {
 			description 'generate a property file with the module name'
-			outputs.dir { jastadd.genResDir ? project.file(jastadd.genResDir) : null }
+			outputs.dir { jastadd.buildInfoDir ? project.file(jastadd.buildInfoDir) : null }
 			doLast {
-				if (jastadd.genResDir) {
-					ant.mkdir dir: "${jastadd.genResDir}"
-					ant.propertyfile(file: "${jastadd.genResDir}/ModuleName.properties") {
-						entry(key: "moduleName", value: jastadd.module.moduleName())
-						entry(key: "moduleVariant", value: jastadd.module.moduleVariant())
+				if (jastadd.buildInfoDir) {
+					def date = new Date()
+					ant.mkdir dir: "${jastadd.buildInfoDir}"
+					ant.propertyfile(file: "${jastadd.buildInfoDir}/BuildInfo.properties") {
+						entry(key: 'moduleName', value: jastadd.module.moduleName())
+						entry(key: 'moduleVariant', value: jastadd.module.moduleVariant())
+						entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
+						entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
 					}
 				}
 			}
@@ -146,7 +149,7 @@ class JastAddPlugin implements Plugin<Project> {
 				def dirs = [
 					jastadd.scanner.genDir,
 					jastadd.parser.genDir,
-					jastadd.genResDir,
+					jastadd.buildInfoDir,
 					jastadd.genDir
 				]
 				dirs.removeAll([null])
@@ -156,7 +159,7 @@ class JastAddPlugin implements Plugin<Project> {
 
 		project.clean.dependsOn 'cleanGen'
 		project.compileJava.dependsOn 'generateJava'
-		project.processResources.dependsOn 'moduleName'
+		project.processResources.dependsOn 'buildInfo'
 	}
 
 }
@@ -210,7 +213,7 @@ class JastAddExtension {
 
 	String astPackage
 	String genDir
-	String genResDir
+	String buildInfoDir
 	ScannerConfig scanner = new ScannerConfig()
 	ParserConfig parser = new ParserConfig()
 }

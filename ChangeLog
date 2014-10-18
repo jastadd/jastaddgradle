@@ -1,3 +1,9 @@
+1.9 - 2014-10-18
+
+    * Replaced ModuleName.properties by BuildInfo.properties
+    * Renamed moduleName task by buildInfo task
+    * Replaced jastadd.genResDir property by jastadd.buildInfoDir
+
 1.8 - 2014-10-18
 
     * Automatically add module Java sources to build path

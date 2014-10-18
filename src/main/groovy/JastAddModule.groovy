@@ -1,3 +1,5 @@
+import org.gradle.api.InvalidUserDataException
+
 class JastAddModule {
 
 	class Aspect {
@@ -62,7 +64,7 @@ class JastAddModule {
 				return module
 			}
 		}
-		throw new Error("Unknown module ${name}")
+		throw new InvalidUserDataException("Unknown module ${name}")
 	}
 
 	def java(clos) {
