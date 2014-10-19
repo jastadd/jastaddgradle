@@ -20,8 +20,8 @@ for alternate scanner- and parser-generators in the future.
 Using JastAddGradle
 -------------------
 
-The first thing to do in order to use the plugin is to add it in the build
-configuration of your `build.gradle`:
+The first thing to do in order to use the plugin is to add a dependency for in
+the build configuration of your `build.gradle`:
 
     buildscript {
         repositories.mavenLocal()
