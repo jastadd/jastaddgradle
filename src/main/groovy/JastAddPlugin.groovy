@@ -34,7 +34,7 @@ class JastAddPlugin implements Plugin<Project> {
 		project.task("jastaddTest") {
 			doLast {
 				def specFiles = project.files(
-					jastadd.module.files(project, "java")
+					jastadd.module.files(project, "jastadd")
 				)
 				specFiles.each{ println "${it}" }
 			}

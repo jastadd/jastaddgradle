@@ -1,15 +1,18 @@
-JastAdd-Gradle
-==============
+JastAddGradle
+=============
 
 Gradle plugin for JastAdd development.
 
-To install in local maven repo run
+What it does
+------------
 
-    gradle install
+JastAddGradle (JAG) does three things:
 
-To publish to public maven repo run
+1. Runs JFlex to generate a scanner
+2. Runs Beaver to generate a parser
+3. Runs JastAdd to generate an attributed abstract grammar
 
-    gradle uploadArchives
+JAG may get support for alternate scanner- and parser-generators in the future.
 
 Using JastAddGradle
 -------------------
@@ -23,7 +26,7 @@ configuration of your `build.gradle`:
             url 'http://jastadd.org/mvn/'
         }
         dependencies {
-            classpath group: 'org.jastadd', name: 'jastaddgradle', version: '1.8'
+            classpath group: 'org.jastadd', name: 'jastaddgradle', version: '1.9'
         }
     }
 
@@ -31,4 +34,45 @@ The URL `http://jastadd.org/mvn/` is the public JastAdd maven repository.  The
 `mavenLocal()` line adds the local maven repository, so that you can build and
 test JastAddGradle without a network connection.
 
+To build and install JastAddGradle in your local maven repo:
+
+    gradle install
+
+Module Definitions
+------------------
+
+Central to JAG is the concept of _modules_. Modules are declared in
+files named `modules`. The location of these files is specified using
+the `modules` command in the `jastadd` configuration. For example:
+
+    jastadd {
+        modules ".", "jastadd/java4" // where to find module definitions
+        module "my module" // select module to use
+    }
+
+A modules file can look like this:
+
+    module("my module") {
+        moduleName "My Module 1.0"
+        moduleVariant "frontend"
+
+        java {
+            basedir "src/main/java/"
+            include "**/*.java"
+        }
+
+        jastadd {
+            include "grammar/*.ast"
+            include "frontend/*.jadd"
+            include "frontend/*.jrag"
+        }
+
+        scanner {
+            include "scanner/Scanner.flex"
+        }
+
+        parser {
+            include "parser/Parser.parser"
+        }
+    }
 
