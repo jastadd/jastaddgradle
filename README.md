@@ -6,13 +6,16 @@ Gradle plugin for JastAdd development.
 What it does
 ------------
 
-JastAddGradle (JAG) does three things:
+JastAddGradle (JAG) is intended for building JastAdd projects. It does three
+things:
 
 1. Runs JFlex to generate a scanner
 2. Runs Beaver to generate a parser
 3. Runs JastAdd to generate an attributed abstract grammar
 
-JAG may get support for alternate scanner- and parser-generators in the future.
+Most JastAdd projects use JFlex and Beaver, however JastAdd itself does not
+mandate that these particular third-party tools are used.  JAG may get support
+for alternate scanner- and parser-generators in the future.
 
 Using JastAddGradle
 -------------------
