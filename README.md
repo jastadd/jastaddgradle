@@ -79,3 +79,10 @@ A modules file can look like this:
         }
     }
 
+Example Projects
+----------------
+
+Some example projects using JastAddGradle:
+
+* [JastAdd Example: GradleBuild](http://jastadd.org/web/examples.php?example=GradleBuild)
+
