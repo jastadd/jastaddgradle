@@ -1,3 +1,7 @@
+1.9.1 - 2014-12-03
+
+    * Updated to latest JastAdd2 release (2.1.9)
+
 1.9 - 2014-10-18
 
     * Replaced ModuleName.properties by BuildInfo.properties
