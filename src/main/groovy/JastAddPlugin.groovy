@@ -53,10 +53,10 @@ class JastAddPlugin implements Plugin<Project> {
 					classpath: project.configurations.jastadd2.asPath) { }
 				ant.jastadd(
 					package: jastadd.astPackage,
-					rewrite: true,
+					rewrite: 'regular',
 					beaver: true,
-					noVisitCheck: true,
-					noCacheCycle: true,
+					visitCheck: false,
+					cacheCycle: false,
 					outdir: project.file(outdir),
 					defaultMap: "new org.jastadd.util.RobustMap(new java.util.HashMap())") {
 					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
