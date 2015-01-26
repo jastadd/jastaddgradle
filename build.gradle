@@ -25,8 +25,6 @@ uploadArchives {
 	repositories.mavenDeployer {
 		configuration = configurations.deployerJars
 		repository(url: "scp://login.cs.lth.se/cs/jastadd/mvn/")
-		// local test
-		//repository(url: uri('./repo'))
 	}
 }
 
