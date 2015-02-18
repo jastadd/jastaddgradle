@@ -85,4 +85,5 @@ Example Projects
 Some example projects using JastAddGradle:
 
 * [JastAdd Example: GradleBuild](http://jastadd.org/web/examples.php?example=GradleBuild)
+* [FinalChecker - JastAddJ extension demo](https://bitbucket.org/joqvist/finalchecker)
 
