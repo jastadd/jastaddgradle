@@ -1,3 +1,12 @@
+1.9.4 - 2015-02-24
+
+    * Modules can now include other modules directly using
+    include("module directory path")
+
+1.9.3 - 2015-02-06
+
+    * Updated to JastAdd 2.1.11
+
 1.9.2 - 2014-12-03
 
     * Updated JastAdd2 task configuration options

@@ -69,21 +69,25 @@ class JastAddModule {
 
 	def java(clos) {
 		clos.delegate = javaAspect
+		clos.resolveStrategy = Closure.DELEGATE_ONLY
 		clos()
 	}
 
 	def jastadd(clos) {
 		clos.delegate = jastaddAspect
+		clos.resolveStrategy = Closure.DELEGATE_ONLY
 		clos()
 	}
 
 	def scanner(clos) {
 		clos.delegate = scannerAspect
+		clos.resolveStrategy = Closure.DELEGATE_ONLY
 		clos()
 	}
 
 	def parser(clos) {
 		clos.delegate = parserAspect
+		clos.resolveStrategy = Closure.DELEGATE_ONLY
 		clos()
 	}
 

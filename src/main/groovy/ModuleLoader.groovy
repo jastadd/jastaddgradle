@@ -7,7 +7,8 @@ class ModuleLoader {
 		}
 		def code = source.text
 		def closure = new GroovyShell().evaluate("{->${code}}")
-		closure.delegate = new ModuleDefinitions(dir)
+		closure.delegate = new ModuleDefinitions(project, dir)
+		closure.resolveStrategy = Closure.DELEGATE_ONLY
 		closure()
 	}
 
