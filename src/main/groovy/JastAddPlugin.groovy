@@ -185,9 +185,7 @@ class JastAddExtension {
 		this.project = project
 	}
 
-	/**
-	 * Load modules.
-	 */
+	/** load module specifications */
 	void modules(String... modules) {
 		modules.each { ModuleLoader.load(project, it) }
 	}
@@ -195,15 +193,18 @@ class JastAddExtension {
 	/** module instance */
 	private JastAddModule module
 
-	/** set the current module */
+	/** set the target module */
 	public void setModule(String name) {
+		if (module != null) {
+			throw new InvalidUserDataException("Target module already selected!")
+		}
 		module = JastAddModule.get(name)
 		// add Java sources included in modules to source set
 		project.compileJava.source project.files(module.files(project, 'java')),
 			project.sourceSets.main.java
 	}
 
-	/** get the current module instance */
+	/** get the target module instance */
 	public JastAddModule getModule() {
 		module
 	}
