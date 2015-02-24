@@ -2,6 +2,8 @@
 
     * Modules can now include other modules directly using
     include("module directory path")
+    * Modules can be specified by file name (if you want to name the module
+    specification file something other than "modules")
 
 1.9.3 - 2015-02-06
 

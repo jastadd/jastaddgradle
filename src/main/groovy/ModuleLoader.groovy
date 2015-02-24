@@ -1,9 +1,15 @@
+import org.gradle.api.InvalidUserDataException
+
 class ModuleLoader {
-	static void load(project, dir) {
-		def name = "modules"
-		def source = project.file("${dir}/${name}");
+	static void load(project, moduleName) {
+		def source = project.file(moduleName)
+		def dir = source.parent
+		if (source.isDirectory()) {
+			source = project.file("${moduleName}/modules")
+			dir = moduleName
+		}
 		if (!source.exists()) {
-			throw new Error("Could not load module definitions: ${dir}/${name}")
+			throw new InvalidUserDataException("Could not load module definitions: ${moduleName}")
 		}
 		def code = source.text
 		def closure = new GroovyShell().evaluate("{->${code}}")
