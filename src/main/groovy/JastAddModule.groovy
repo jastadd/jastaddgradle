@@ -136,8 +136,9 @@ class JastAddModule {
 		excludes
 	}
 
+	/** All files for the component in this module and all included modules. */
 	def files(project, component) {
-		files(project, component, gatherExcludes(component, [] as Set), [] as Set)
+		findFiles(project, component, gatherExcludes(component, [] as Set), [] as Set)
 			.sort{ a, b ->
 				def aa = a[0]
 				def bb = b[0]
@@ -155,14 +156,14 @@ class JastAddModule {
 		// TODO give warning if there were duplicate files?
 	}
 
-	private def files(project, component, excludeFroms, visited) {
+	private def findFiles(project, component, excludeFroms, visited) {
 		if (visited.contains(this)) {
 			return []
 		} else {
 			visited << this
 		}
 		def files = []
-		imports.each{ files.addAll(it.files(project, component, excludeFroms, visited)) }
+		imports.each{ files.addAll(it.findFiles(project, component, excludeFroms, visited)) }
 		def includes = includes(component)
 		def excludes = excludes(component)
 		if (includes) {
