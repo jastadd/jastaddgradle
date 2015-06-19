@@ -30,18 +30,9 @@ class JastAddPlugin implements Plugin<Project> {
 
 		project.sourceSets.main.java.srcDir { jastadd.genDir }
 
-		// for testing
-		project.task("jastaddTest") {
-			doLast {
-				def specFiles = project.files(
-					jastadd.module.files(project, "jastadd")
-				)
-				specFiles.each{ println "${it}" }
-			}
-		}
 		project.task("generateJava", dependsOn: [ "scanner", "parser" ]) {
 			description 'generate Java sources from JastAdd aspects'
-			inputs.files { jastadd.module.files(project, "jastadd") }
+			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "jastadd") }
 			outputs.dir { project.file(jastadd.genDir) }
 			doLast {
 				def outdir = jastadd.genDir
@@ -63,9 +54,10 @@ class JastAddPlugin implements Plugin<Project> {
 				}
 			}
 		}
+
 		project.task("scanner") {
 			description 'generate JFlex scanner'
-			inputs.files { jastadd.module.files(project, "scanner") }
+			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "scanner") }
 			outputs.dir {
 				def outdir = jastadd.scanner.genDir ?: "${jastadd.genDir}/scanner"
 				project.file(outdir)
@@ -91,7 +83,7 @@ class JastAddPlugin implements Plugin<Project> {
 
 		project.task("parser") {
 			description 'generate Beaver parser'
-			inputs.files { jastadd.module.files(project, "parser") }
+			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "parser") }
 			outputs.dir {
 				def outdir = jastadd.parser.genDir ?: "${jastadd.genDir}/parser"
 				project.file(outdir)
@@ -180,14 +172,22 @@ class ParserConfig {
 
 class JastAddExtension {
 	Project project
+	final ModuleLoader loader
+
+	/** All loaded modules. */
+	List modules = []
+
+	/** All module sources. */
+	List moduleSources = []
 
 	JastAddExtension(Project project) {
+		loader = new ModuleLoader(this)
 		this.project = project
 	}
 
 	/** load module specifications */
 	void modules(String... modules) {
-		modules.each { ModuleLoader.load(project, it) }
+		modules.each { loader.load(project, it) }
 	}
 
 	/** module instance */
@@ -198,7 +198,7 @@ class JastAddExtension {
 		if (module != null) {
 			throw new InvalidUserDataException("Target module already selected!")
 		}
-		module = JastAddModule.get(name)
+		module = getModule(name)
 		// add Java sources included in modules to source set
 		project.compileJava.source project.files(module.files(project, 'java')),
 			project.sourceSets.main.java
@@ -209,6 +209,10 @@ class JastAddExtension {
 		module
 	}
 
+	public void addModuleSource(source) {
+		moduleSources.add source
+	}
+
 	/** supported Java version */
 	String javaVersion
 
@@ -217,5 +221,19 @@ class JastAddExtension {
 	String buildInfoDir
 	ScannerConfig scanner = new ScannerConfig()
 	ParserConfig parser = new ParserConfig()
+
+	public void addModule(module) {
+		modules.add module
+	}
+
+	def getModule(name) {
+		for (module in modules) {
+			if (module.name == name) {
+				return module
+			}
+		}
+		throw new InvalidUserDataException("Unknown module ${name}")
+	}
+
 }
 

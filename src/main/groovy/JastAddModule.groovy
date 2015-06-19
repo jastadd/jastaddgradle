@@ -24,9 +24,6 @@ class JastAddModule {
 		}
 	}
 
-	/** all defined modules */
-	static List modules = []
-
 	String basedir = "."
 	String name
 	String moduleName
@@ -36,18 +33,18 @@ class JastAddModule {
 	Aspect scannerAspect = new Aspect()
 	Aspect parserAspect = new Aspect()
 	def imports = []
+	ModuleLoader loader
 
 	JastAddModule(name) {
 		this.name = name
-		modules << this
 	}
 
 	def imports(name) {
-		imports += get(name)
+		imports += loader.get(name)
 	}
 
 	def "import"(name) {
-		imports += get(name)
+		imports += loader.get(name)
 	}
 
 	def moduleName(version) {
@@ -56,15 +53,6 @@ class JastAddModule {
 
 	def moduleVariant(version) {
 		moduleVariant = version
-	}
-
-	static def get(name) {
-		for (module in modules) {
-			if (module.name == name) {
-				return module
-			}
-		}
-		throw new InvalidUserDataException("Unknown module ${name}")
 	}
 
 	def java(clos) {
