@@ -1,3 +1,8 @@
+1.9.5 - 2015-10-05
+
+    * JastAdd build tasks now depend on the module definitions, so editing a
+      module definition should now trigger a rebuild.
+
 1.9.4 - 2015-02-24
 
     * Modules can now include other modules directly using
