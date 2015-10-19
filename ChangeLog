@@ -1,3 +1,7 @@
+1.9.6 - 2015-10-19
+
+    * Updated to JastAdd 2.1.13
+
 1.9.5 - 2015-10-05
 
     * JastAdd build tasks now depend on the module definitions, so editing a
