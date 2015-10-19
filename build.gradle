@@ -1,8 +1,10 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 project.version = '1.9.6'
 project.group = 'org.jastadd'
+project.archivesBaseName = 'jastaddgradle'
 
 // Ensure the plugin runs with Java 7.
 sourceCompatibility = '1.7'
@@ -25,20 +27,58 @@ dependencies {
 	deployerJars "org.apache.maven.wagon:wagon-ssh:2.4"
 }
 
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+signing {
+	sign configurations.archives
+}
+
 uploadArchives {
 	repositories.mavenDeployer {
-		configuration = configurations.deployerJars
-		def sshServer = 'scp://web.cs.lth.se/Websites/jastadd/mvn/'
-		repository(url: sshServer) {
-			if (project.hasProperty('sshUser')) {
-				authentication(userName: project.sshUser)
-				println "Connecting to ${sshServer} using user=${project.sshUser}."
-				println "If this times out you may need to manually ssh to the server first."
-			} else {
-				println "Warning: ssh username not set. Artifact upload may fail."
-				println "To set the ssh username, run gradle with -PsshUser=username."
+		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+		repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+
+		snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+
+		pom.project {
+			name 'JastAddGradle'
+			packaging 'jar'
+			description 'A Gradle build plugin for building JastAdd projects.'
+			url 'http://jastadd.org'
+			licenses {
+				license {
+					name 'Modified BSD License'
+					url 'http://opensource.org/licenses/BSD-3-Clause'
+					distribution 'repo'
+				}
+			}
+			developers {
+				developer {
+					name 'Jesper Öqvist'
+					email 'jesper.oqvist@cs.lth.se'
+				}
+			}
+			scm {
+				connection 'scm:git:https://bitbucket.org/joqvist/jastaddgradle.git'
+				url 'https://bitbucket.org/joqvist/jastaddgradle'
 			}
 		}
 	}
 }
-
