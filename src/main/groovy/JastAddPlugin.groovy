@@ -14,9 +14,6 @@ class JastAddPlugin implements Plugin<Project> {
 
 		project.repositories {
 			mavenCentral()
-			maven {
-				url 'http://jastadd.org/mvn/'
-			}
 		}
 
 		project.dependencies {
