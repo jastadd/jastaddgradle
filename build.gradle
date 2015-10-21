@@ -15,18 +15,6 @@ dependencies {
 	compile localGroovy()
 }
 
-configurations {
-	deployerJars
-}
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-	deployerJars "org.apache.maven.wagon:wagon-ssh:2.4"
-}
-
 task javadocJar(type: Jar) {
 	classifier = 'javadoc'
 	from javadoc
