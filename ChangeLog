@@ -1,3 +1,7 @@
+1.9.7 - 2015-10-29
+
+    * JastAddGradle now uses the Central Repository to fetch JastAdd2.
+
 1.9.6 - 2015-10-19
 
     * Updated to JastAdd 2.1.13
