@@ -17,7 +17,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.dependencies {
-			jastadd2 group: 'org.jastadd', name: 'jastadd2', version: '2.1.13'
+			jastadd2 group: 'org.jastadd', name: 'jastadd', version: '2.1.13'
 			jastaddParser group: 'org.jastadd', name: 'jastaddparser', version: '1.0.3'
 			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
@@ -94,7 +94,7 @@ class JastAddPlugin implements Plugin<Project> {
 					binary: true, force: false) {
 					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
-				ant.java(classname: "Main", fork: true) {
+				ant.java(classname: 'org.jastadd.jastaddparser.Main', fork: true) {
 					classpath {
 						pathelement(path: project.configurations.jastaddParser.asPath)
 					}
@@ -114,7 +114,7 @@ class JastAddPlugin implements Plugin<Project> {
 			}
 		}
 
-		// only if jastadd.buildInfoDir is not null
+		// Only if jastadd.buildInfoDir is not null.
 		project.task("buildInfo") {
 			description 'generate a property file with the module name'
 			outputs.dir { jastadd.buildInfoDir ? project.file(jastadd.buildInfoDir) : null }

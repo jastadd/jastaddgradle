@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-project.version = '1.9.8'
+project.version = '1.9.9'
 project.group = 'org.jastadd'
 project.archivesBaseName = 'jastaddgradle'
 
@@ -38,11 +38,15 @@ uploadArchives {
 		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
 		repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-			authentication(userName: ossrhUsername, password: ossrhPassword)
+			if (project.hasProperty('ossrhUsername')) {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
 		}
 
 		snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
-			authentication(userName: ossrhUsername, password: ossrhPassword)
+			if (project.hasProperty('ossrhUsername')) {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
 		}
 
 		pom.project {

@@ -1,3 +1,8 @@
+1.9.9 - 2015-10-29
+
+    * Fixed build error caused by JastAddParser refactoring.
+    * Fixed incorrect JastAdd2 Central Repository artifact name.
+
 1.9.8 - 2015-10-29
 
     * Changed JastAddParser dependency to use the Central Repository.
