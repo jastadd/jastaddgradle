@@ -1,3 +1,7 @@
+1.9.8 - 2015-10-29
+
+    * Changed JastAddParser dependency to use the Central Repository.
+
 1.9.7 - 2015-10-29
 
     * JastAddGradle now uses the Central Repository to fetch JastAdd2.
