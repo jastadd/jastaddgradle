@@ -1,3 +1,8 @@
+1.9.10 - 2015-12-01
+
+    * Added the bashBuild task for the JastAdd plugin. The bashBuild task
+    generates a static Bash build script for the project.
+
 1.9.9 - 2015-10-29
 
     * Fixed build error caused by JastAddParser refactoring.

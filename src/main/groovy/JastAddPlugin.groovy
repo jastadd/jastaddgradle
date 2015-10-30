@@ -27,6 +27,77 @@ class JastAddPlugin implements Plugin<Project> {
 
 		project.sourceSets.main.java.srcDir { jastadd.genDir }
 
+		project.task('bashBuild') << {
+			def scannerFiles = project.files(
+				jastadd.module.files(project, "scanner")
+			)
+			def parserFiles = project.files(
+				jastadd.module.files(project, "parser")
+			)
+			def jastaddFiles = project.files(
+				jastadd.module.files(project, "jastadd")
+			)
+			def parserName = jastadd.parser.name
+			def parserDir = jastadd.parser.genDir ?: "${jastadd.genDir}/parser"
+			def outdir = jastadd.genDir
+			def relpath = { path ->
+				project.projectDir.toURI().relativize(path.toURI()).toString()
+			}
+			project.file('build.sh').withWriter { writer ->
+				writer.writeLine '#!/bin/bash'
+				writer.writeLine 'set -eu'
+				writer.writeLine 'source config.sh # Configure the build with this file.'
+				writer.writeLine 'mkdir -p "build/tmp"'
+
+				// Generate scanner.
+				writer.writeLine 'echo "Generating scanner..."'
+				writer.write 'cat'
+				scannerFiles.each { writer.write " \\\n    '${relpath(it)}'" }
+				writer.writeLine ' \\\n    > "build/tmp/JavaScanner.flex"'
+				writer.writeLine "mkdir -p \"${jastadd.genDir}/scanner\""
+				writer.writeLine "\${JFLEX} -d \"${jastadd.genDir}/scanner\" --nobak \"build/tmp/JavaScanner.flex\""
+
+				// Generate parser.
+				writer.writeLine 'echo "Generating parser..."'
+				writer.write 'cat'
+				parserFiles.each { writer.write " \\\n    '${relpath(it)}'" }
+				writer.writeLine " \\\n    > \"build/tmp/${parserName}.all\""
+				writer.writeLine "\${JASTADDPARSER} \"build/tmp/${parserName}.all\" \"build/tmp/${parserName}.beaver\""
+				writer.writeLine "mkdir -p \"${parserDir}\""
+				writer.writeLine "\${BEAVER} -d \"${parserDir}\" -t -c -w \"build/tmp/${parserName}.beaver\""
+
+				// Generate Java code with JastAdd.
+				writer.writeLine 'echo "Generating node types and weaving aspects..."'
+
+				writer.writeLine "mkdir -p \"${outdir}\""
+				writer.writeLine "\${JASTADD} --package=\"${jastadd.astPackage}\" \\"
+				writer.writeLine "    --o=\"${outdir}\" \\"
+				writer.writeLine '    --rewrite=regular --beaver \\'
+				writer.writeLine '    --visitCheck=false --cacheCycle=false \\'
+				writer.write '    --defaultMap="new org.jastadd.util.RobustMap(new java.util.HashMap())"'
+				jastaddFiles.each { writer.write " \\\n    '${relpath(it)}'" }
+				writer.write ' ${EXTRA_JASTADD_SOURCES}'
+				writer.writeLine ''
+
+				// Compile the generated code.
+				writer.writeLine 'echo "Compiling Java code..."'
+				writer.writeLine 'mkdir -p build/classes/main'
+				writer.writeLine 'javac -d build/classes/main $(find src/java -name \'*.java\') \\'
+				writer.writeLine '    $(find src/gen -name \'*.java\') \\'
+				writer.writeLine '    $(find extendj/src/frontend -name \'*.java\') ${EXTRA_JAVA_SOURCES}'
+				writer.writeLine 'mkdir -p src/gen-res'
+				def date = new Date()
+				writer.writeLine "echo \"moduleName: ${jastadd.module.moduleName()}\" > src/gen-res/BuildInfo.properties"
+				writer.writeLine "echo \"moduleVariant: ${jastadd.module.moduleVariant()}\" >> src/gen-res/BuildInfo.properties"
+				writer.writeLine "echo \"timestamp: ${date.format("yyyy-MM-dd'T'HH:mm'Z'")}\" >> src/gen-res/BuildInfo.properties"
+				writer.writeLine "echo \"build.date: ${date.format("yyyy-MM-dd")}\" >> src/gen-res/BuildInfo.properties"
+				writer.writeLine "jar cef \"${project.jar.manifest.attributes.get('Main-Class')}\" \"${project.name}.jar\" \\"
+				writer.writeLine '    -C build/classes/main . \\'
+				writer.writeLine '    -C src/gen-res BuildInfo.properties \\'
+				writer.writeLine '    -C extendj/src/res Version.properties'
+			}
+		}
+
 		project.task("generateJava", dependsOn: [ "scanner", "parser" ]) {
 			description 'generate Java sources from JastAdd aspects'
 			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "jastadd") }
@@ -197,7 +268,7 @@ class JastAddExtension {
 			throw new InvalidUserDataException("Target module already selected!")
 		}
 		module = getModule(name)
-		// add Java sources included in modules to source set
+		// Add Java sources included in modules to source set.
 		project.compileJava.source project.files(module.files(project, 'java')),
 			project.sourceSets.main.java
 	}
@@ -234,4 +305,3 @@ class JastAddExtension {
 	}
 
 }
-
