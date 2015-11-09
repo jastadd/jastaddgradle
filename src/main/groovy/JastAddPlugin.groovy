@@ -94,7 +94,8 @@ class JastAddPlugin implements Plugin<Project> {
 					binary: true, force: false) {
 					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
-				ant.java(classname: 'org.jastadd.jastaddparser.Main', fork: true) {
+				ant.java(classname: 'org.jastadd.jastaddparser.Main',
+						fork: true, failonerror: true) {
 					classpath {
 						pathelement(path: project.configurations.jastaddParser.asPath)
 					}
