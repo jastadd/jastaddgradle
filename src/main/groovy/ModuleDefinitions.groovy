@@ -27,4 +27,3 @@ class ModuleDefinitions {
 		loader.load(project, "${directory}/${moduleDir}")
 	}
 }
-

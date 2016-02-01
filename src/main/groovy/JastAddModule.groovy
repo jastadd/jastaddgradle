@@ -141,7 +141,7 @@ class JastAddModule {
 				}
 				0
 			}.collect{ it[1].collect{ it } }.flatten() as LinkedHashSet
-		// TODO give warning if there were duplicate files?
+		// TODO(joqvist): generate warning if there were duplicate files?
 	}
 
 	private def findFiles(project, component, excludeFroms, visited) {
@@ -171,6 +171,4 @@ class JastAddModule {
 		}
 		files
 	}
-
 }
-

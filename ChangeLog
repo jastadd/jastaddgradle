@@ -1,3 +1,9 @@
+1.9.11 - 2015-02-01
+
+    * Updated to JastAdd 2.2.0.
+    * Removed the implicit --defaultMap JastAdd option that was needed to
+    build older versions of ExtendJ (before commit 188addd).
+
 1.9.10 - 2015-12-01
 
     * Added the bashBuild task for the JastAdd plugin. The bashBuild task

@@ -17,7 +17,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.dependencies {
-			jastadd2 group: 'org.jastadd', name: 'jastadd', version: '2.1.13'
+			jastadd2 group: 'org.jastadd', name: 'jastadd', version: '2.2.0'
 			jastaddParser group: 'org.jastadd', name: 'jastaddparser', version: '1.0.3'
 			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
@@ -28,6 +28,7 @@ class JastAddPlugin implements Plugin<Project> {
 		project.sourceSets.main.java.srcDir { jastadd.genDir }
 
 		project.task('bashBuild') << {
+			description 'Generates a Bash script to build this project.'
 			def scannerFiles = project.files(
 				jastadd.module.files(project, "scanner")
 			)
@@ -70,11 +71,13 @@ class JastAddPlugin implements Plugin<Project> {
 				writer.writeLine 'echo "Generating node types and weaving aspects..."'
 
 				writer.writeLine "mkdir -p \"${outdir}\""
-				writer.writeLine "\${JASTADD} --package=\"${jastadd.astPackage}\" \\"
+				writer.writeLine "\${JASTADD} \\"
+				writer.writeLine "    --package=\"${jastadd.astPackage}\" \\"
 				writer.writeLine "    --o=\"${outdir}\" \\"
-				writer.writeLine '    --rewrite=regular --beaver \\'
-				writer.writeLine '    --visitCheck=false --cacheCycle=false \\'
-				writer.write '    --defaultMap="new org.jastadd.util.RobustMap(new java.util.HashMap())"'
+				writer.writeLine '    --rewrite=regular \\'
+				writer.writeLine '    --beaver \\'
+				writer.writeLine '    --visitCheck=false \\'
+				writer.write     '    --cacheCycle=false'
 				jastaddFiles.each { writer.write " \\\n    '${relpath(it)}'" }
 				writer.write ' ${EXTRA_JASTADD_SOURCES}'
 				writer.writeLine ''
@@ -99,7 +102,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.task("generateJava", dependsOn: [ "scanner", "parser" ]) {
-			description 'generate Java sources from JastAdd aspects'
+			description 'Generates Java sources from JastAdd aspects.'
 			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "jastadd") }
 			outputs.dir { project.file(jastadd.genDir) }
 			doLast {
@@ -116,15 +119,14 @@ class JastAddPlugin implements Plugin<Project> {
 					beaver: true,
 					visitCheck: false,
 					cacheCycle: false,
-					outdir: project.file(outdir),
-					defaultMap: "new org.jastadd.util.RobustMap(new java.util.HashMap())") {
+					outdir: project.file(outdir)) {
 					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
 			}
 		}
 
 		project.task("scanner") {
-			description 'generate JFlex scanner'
+			description 'Generates JFlex scanner.'
 			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "scanner") }
 			outputs.dir {
 				def outdir = jastadd.scanner.genDir ?: "${jastadd.genDir}/scanner"
@@ -150,7 +152,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.task("parser") {
-			description 'generate Beaver parser'
+			description 'Generates Beaver parser.'
 			inputs.files { jastadd.moduleSources + jastadd.module.files(project, "parser") }
 			outputs.dir {
 				def outdir = jastadd.parser.genDir ?: "${jastadd.genDir}/parser"
@@ -188,7 +190,7 @@ class JastAddPlugin implements Plugin<Project> {
 
 		// Only if jastadd.buildInfoDir is not null.
 		project.task("buildInfo") {
-			description 'generate a property file with the module name'
+			description 'Generates a property file with the module name.'
 			outputs.dir { jastadd.buildInfoDir ? project.file(jastadd.buildInfoDir) : null }
 			doLast {
 				if (jastadd.buildInfoDir) {
@@ -205,7 +207,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.task("cleanGen", type: Delete) {
-			description 'remove generated files'
+			description 'Removes generated files.'
 			delete {
 				def dirs = [
 					jastadd.scanner.genDir,
@@ -226,16 +228,15 @@ class JastAddPlugin implements Plugin<Project> {
 }
 
 class ScannerConfig {
-	/** Directory to generate scanner in */
+	/** Directory to generate scanner in. */
 	String genDir
 }
 
 class ParserConfig {
-	/**
-	 * Generated parser name (default="JavaParser")
-	 */
+	/** Generated parser name (default="JavaParser"). */
 	String name = "JavaParser"
-	/** Directory to generate parser in */
+
+	/** Directory to generate parser in. */
 	String genDir
 }
 
@@ -254,15 +255,15 @@ class JastAddExtension {
 		this.project = project
 	}
 
-	/** load module specifications */
+	/** Load module specifications. */
 	void modules(String... modules) {
 		modules.each { loader.load(project, it) }
 	}
 
-	/** module instance */
+	/** Module instance. */
 	private JastAddModule module
 
-	/** set the target module */
+	/** Set the target module. */
 	public void setModule(String name) {
 		if (module != null) {
 			throw new InvalidUserDataException("Target module already selected!")
@@ -273,7 +274,7 @@ class JastAddExtension {
 			project.sourceSets.main.java
 	}
 
-	/** get the target module instance */
+	/** Get the target module instance. */
 	public JastAddModule getModule() {
 		module
 	}
@@ -282,7 +283,7 @@ class JastAddExtension {
 		moduleSources.add source
 	}
 
-	/** supported Java version */
+	/** Supported Java version. */
 	String javaVersion
 
 	String astPackage
@@ -303,5 +304,4 @@ class JastAddExtension {
 		}
 		throw new InvalidUserDataException("Unknown module ${name}")
 	}
-
 }
