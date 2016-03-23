@@ -17,7 +17,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.dependencies {
-			jastadd2 group: 'org.jastadd', name: 'jastadd', version: '2.2.0'
+			jastadd2 group: 'org.jastadd', name: 'jastadd', version: '2.2.2'
 			jastaddParser group: 'org.jastadd', name: 'jastaddparser', version: '1.0.3'
 			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
@@ -74,7 +74,8 @@ class JastAddPlugin implements Plugin<Project> {
 				writer.writeLine "\${JASTADD} \\"
 				writer.writeLine "    --package=\"${jastadd.astPackage}\" \\"
 				writer.writeLine "    --o=\"${outdir}\" \\"
-				writer.writeLine '    --rewrite=regular \\'
+				writer.writeLine '    --rewrite=cnta \\'
+				writer.writeLine '    --safeLazy \\'
 				writer.writeLine '    --beaver \\'
 				writer.writeLine '    --visitCheck=false \\'
 				writer.write     '    --cacheCycle=false'
@@ -115,7 +116,8 @@ class JastAddPlugin implements Plugin<Project> {
 					classpath: project.configurations.jastadd2.asPath) { }
 				ant.jastadd(
 					package: jastadd.astPackage,
-					rewrite: 'regular',
+					rewrite: 'cnta',
+					safeLazy: true,
 					beaver: true,
 					visitCheck: false,
 					cacheCycle: false,

@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-project.version = '1.9.11'
+project.version = '1.9.12'
 project.group = 'org.jastadd'
 project.archivesBaseName = 'jastaddgradle'
 
