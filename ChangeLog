@@ -1,3 +1,13 @@
+1.10.0 - 2016-04-20
+
+    * Simple JastAdd projects have no need for a fully modular build, so by
+    default the JastAdd plugin no longer configures a modular build using
+    JFlex and Beaver. To configure a modular build now requires calling
+    configureModuleBuild() on the jastadd plugin object.
+    * Added Gradle task type org.jastadd.JastAddTask, which can be used to
+    generate Java code from JastAdd specifications, useful for non-modular
+    builds.
+
 1.9.11 - 2015-02-01
 
     * Updated to JastAdd 2.2.0.

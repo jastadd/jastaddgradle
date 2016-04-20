@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-project.version = '1.9.12'
+project.version = '1.10.0'
 project.group = 'org.jastadd'
 project.archivesBaseName = 'jastaddgradle'
 
@@ -30,6 +30,8 @@ artifacts {
 }
 
 signing {
+	// Skip signing if there is no key configured:
+	required { project.hasProperty('signing.keyId') }
 	sign configurations.archives
 }
 
