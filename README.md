@@ -6,7 +6,7 @@ Gradle plugin for JastAdd development.
 Can be used just to generate Java code using JastAdd, or for building an
 modular project using JFlex and Beaver for scanner and parser generation.
 
-##Non-modular build
+## Non-modular build
 
 Because simple JastAdd projects have no need for modules, and may use other
 scanner and parser generators than JFlex and Beaver. For such projects it's
@@ -44,7 +44,7 @@ You may also want to make the `compileJava` plugin depend on the generated code:
 By combining these three parts, you will have a minimal Gradle build that
 generates Java code using JastAdd!
 
-##Modular build
+## Modular build
 
 The JastAdd Gradle plugin allows building modular projects that use JFlex and
 Beaver by adding some default build tasks. A modular build can be configured by
@@ -59,7 +59,15 @@ Unlike JastAdd itself, the Gradle plugin does not yet support other scanner and
 parser generator tools for modular builds.  JastAddGradle may get support for
 other scanner- and parser generators in the future.
 
-###Example build
+### Rebuilding
+
+JastAddGradle does not always detect if source files were modified. To ensure a
+rebuild you can pass the `--rerun-tasks` option to Gradle when building your project.
+
+In particular, changes to JastAdd module specifications (`jastadd_modules` files)
+always require a rebuild to take effect.
+
+### Example build
 
 Building a modular JastAddGradle project requires first adding the dependencies for
 the plugin to the start of the Gradle build script, in the `build.gradle` file:
@@ -112,7 +120,7 @@ A module file can look like this:
     }
 
 
-##Example Projects
+## Example Projects
 
 Some example projects using JastAddGradle:
 
