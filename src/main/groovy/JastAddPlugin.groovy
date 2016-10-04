@@ -59,7 +59,6 @@ class JastAddExtension {
 			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
 			beaver group: 'net.sf.beaver', name: 'beaver-ant', version: '0.9.11'
-			compile group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
 		}
 
 		project.sourceSets.main.java.srcDir { genDir }
