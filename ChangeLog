@@ -1,3 +1,9 @@
+1.10.3 - 2017-01-02
+
+    * Replaced some Ant tasks by Gradle's JavaExec.
+    * Upgraded JFlex dependency to version 1.6.1
+    * Added extraJastAddOptions configuration variable.
+
 1.10.2 - 2016-04-22
 
     * JastAddGradle no longer adds a beaver-rt dependency

@@ -5,7 +5,7 @@ import org.gradle.api.file.*
 class JastAddPlugin implements Plugin<Project> {
 
 	void apply(Project project) {
-		def jastadd = project.extensions.create("jastadd", JastAddExtension, project)
+		def jastadd = project.extensions.create('jastadd', JastAddExtension, project)
 
 		project.configurations.create('jastadd2')
 
@@ -44,7 +44,7 @@ class JastAddExtension {
 	List moduleSources = []
 
 	JastAddExtension(Project project) {
-		println "Configuring JastAdd"
+		println 'Configuring JastAdd'
 		loader = new ModuleLoader(this)
 		this.project = project
 	}
@@ -55,10 +55,10 @@ class JastAddExtension {
 		project.configurations.create('beaver')
 
 		project.dependencies {
-			jastaddParser group: 'org.jastadd', name: 'jastaddparser', version: '1.0.3'
-			jastaddParser group: 'net.sf.beaver', name: 'beaver-rt', version: '0.9.11'
-			jflex group: 'de.jflex', name: 'jflex', version: '1.4.3'
-			beaver group: 'net.sf.beaver', name: 'beaver-ant', version: '0.9.11'
+			jastaddParser 'org.jastadd:jastaddparser:1.0.3'
+			jastaddParser 'net.sf.beaver:beaver-rt:0.9.11'
+			jflex 'de.jflex:jflex:1.6.1'
+			beaver 'net.sf.beaver:beaver-ant:0.9.11'
 		}
 
 		project.sourceSets.main.java.srcDir { genDir }
@@ -66,13 +66,13 @@ class JastAddExtension {
 		project.task('bashBuild') << {
 			description 'Generates a Bash script to build this project.'
 			def scannerFiles = project.files(
-				module.files(project, "scanner")
+				module.files(project, 'scanner')
 			)
 			def parserFiles = project.files(
-				module.files(project, "parser")
+				module.files(project, 'parser')
 			)
 			def jastaddFiles = project.files(
-				module.files(project, "jastadd")
+				module.files(project, 'jastadd')
 			)
 			def parserName = parser.name
 			def parserDir = parser.genDir ?: "${genDir}/parser"
@@ -138,96 +138,101 @@ class JastAddExtension {
 			}
 		}
 
-		project.task("generateJava", dependsOn: [ "scanner", "parser" ]) {
-			description 'Generates Java sources from JastAdd aspects.'
-			inputs.files { moduleSources + module.files(project, "jastadd") }
+		project.task('generateJava', type: JavaExec, dependsOn: [ 'scanner', 'parser' ]) {
+			description 'Generates Java sources from JastAdd code.'
+
+			inputs.files { moduleSources + module.files(project, 'jastadd') }
 			outputs.dir { project.file(genDir) }
-			doLast {
-				def outdir = genDir
-				def specFiles = project.files(
-					module.files(project, "jastadd")
-				)
-				ant.mkdir(dir: project.file(outdir))
-				ant.taskdef(name: "jastadd", classname: "org.jastadd.JastAddTask",
-					classpath: project.configurations.jastadd2.asPath) { }
-				ant.jastadd(
-					package: astPackage,
-					rewrite: 'cnta',
-					safeLazy: true,
-					beaver: true,
-					visitCheck: false,
-					cacheCycle: false,
-					outdir: project.file(outdir)) {
-					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
-				}
+
+			classpath = project.configurations.jastadd2
+			main = 'org.jastadd.JastAdd'
+
+			doFirst {
+				def outdir = project.file(genDir)
+				outdir.mkdirs()
+				args ([ '--rewrite=cnta',
+					'--safeLazy',
+					'--beaver',
+					"--package=${astPackage}",
+					'--visitCheck=false',
+					'--cacheCycle=false',
+					"--o=${outdir.path}" ]
+					+ extraJastAddOptions
+					+ module.files(project, 'jastadd'))
 			}
 		}
 
-		project.task("scanner") {
-			description 'Generates JFlex scanner.'
-			inputs.files { moduleSources + module.files(project, "scanner") }
+		project.task('scanner', type: JavaExec) {
+			description 'Generates scanner with JFlex.'
+
+			inputs.files { moduleSources + module.files(project, 'scanner') }
 			outputs.dir {
-				def outdir = scanner.genDir ?: "${genDir}/scanner"
-				project.file(outdir)
+				// This needs to be a closure so that the genDir configuration variable can be used.
+				project.file(scanner.genDir ?: "${genDir}/scanner")
 			}
-			doLast {
-				def specFiles = project.files(
-					module.files(project, "scanner")
-				)
+
+			classpath = project.configurations.jflex
+			main = 'jflex.Main'
+
+			doFirst {
+				def inputFiles = project.files(module.files(project, 'scanner'))
+				def outdir = project.file(scanner.genDir ?: "${genDir}/scanner")
+				outdir.mkdirs()
 				ant.concat(destfile: "${temporaryDir}/JavaScanner.flex",
 					binary: true, force: false) {
-					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
+					inputFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
-				ant.mkdir(dir: "${genDir}/scanner")
-				ant.taskdef(name: "jflex", classname: "JFlex.anttask.JFlexTask",
-					classpath: project.configurations.jflex.asPath)
-				def outdir = scanner.genDir ?: "${genDir}/scanner"
-				ant.mkdir(dir: project.file(outdir))
-				ant.jflex(file: "${temporaryDir}/JavaScanner.flex",
-					outdir: project.file(outdir),
-					nobak: true)
+				args ([ '-d', outdir.path, "${temporaryDir}/JavaScanner.flex" ])
 			}
 		}
 
-		project.task("parser") {
-			description 'Generates Beaver parser.'
-			inputs.files { moduleSources + module.files(project, "parser") }
-			outputs.dir {
-				def outdir = parser.genDir ?: "${genDir}/parser"
-				project.file(outdir)
+		project.task('preprocessParser', type: JavaExec) {
+			description 'Generates Beaver parser with JastAddParser.'
+
+			inputs.files { moduleSources + module.files(project, 'parser') }
+			outputs.file {
+				project.file("${temporaryDir}/${parser.name}.beaver")
 			}
-			doLast {
-				def specFiles = project.files(
-					module.files(project, "parser")
-				)
-				def parserName = parser.name
-				ant.concat(destfile: "${temporaryDir}/${parserName}.all",
+
+			classpath = project.configurations.jastaddParser
+			main = 'org.jastadd.jastaddparser.Main'
+
+			doFirst {
+				def inputFiles = project.files(module.files(project, 'parser'))
+				ant.concat(destfile: "${temporaryDir}/${parser.name}.all",
 					binary: true, force: false) {
-					specFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
+					inputFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
-				ant.java(classname: 'org.jastadd.jastaddparser.Main',
-						fork: true, failonerror: true) {
-					classpath {
-						pathelement(path: project.configurations.jastaddParser.asPath)
-					}
-					arg(value: "${temporaryDir}/${parserName}.all")
-					arg(value: "${temporaryDir}/${parserName}.beaver")
-				}
-				ant.mkdir(dir: "${genDir}/parser")
-				ant.taskdef(name: "beaver", classname: "beaver.comp.run.AntTask",
-					classpath: project.configurations.beaver.asPath)
-				def outdir = parser.genDir ?: "${genDir}/parser"
-				ant.mkdir(dir: project.file(outdir))
-				ant.beaver(file: "${temporaryDir}/${parserName}.beaver",
-					destdir: outdir,
-					terminalNames: true,
-					compress: false,
-					useSwitch: true)
+				def allFile = project.file("${temporaryDir}/${parser.name}.all")
+				def beaverFile = project.file("${temporaryDir}/${parser.name}.beaver")
+				args ([ allFile.path, beaverFile.path ])
+			}
+		}
+
+		project.task('parser', type: JavaExec, dependsOn: [ 'preprocessParser' ]) {
+			description 'Generates parser with Beaver.'
+
+			inputs.files {
+				project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
+			}
+			outputs.dir {
+				// This needs to be a closure so that the genDir configuration variable can be used.
+				project.file(parser.genDir ?: "${genDir}/parser")
+			}
+
+			classpath = project.configurations.beaver
+			main = 'beaver.comp.run.Make'
+
+			doFirst {
+				def outdir = project.file(parser.genDir ?: "${genDir}/parser")
+				outdir.mkdirs()
+				def inputFile = project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
+				args ([ '-d', outdir.path, '-t', '-c', '-w', inputFile.path ])
 			}
 		}
 
 		// Only if buildInfoDir is not null:
-		project.task("buildInfo") {
+		project.task('buildInfo') {
 			description 'Generates a property file with the module name.'
 			outputs.dir { buildInfoDir ? project.file(buildInfoDir) : null }
 			doLast {
@@ -244,7 +249,7 @@ class JastAddExtension {
 			}
 		}
 
-		project.task("cleanGen", type: Delete) {
+		project.task('cleanGen', type: Delete) {
 			description 'Removes generated files.'
 			delete {
 				def dirs = [
@@ -297,6 +302,7 @@ class JastAddExtension {
 	String astPackage
 	String genDir
 	String buildInfoDir
+	List<String> extraJastAddOptions = [];
 	ScannerConfig scanner = new ScannerConfig()
 	ParserConfig parser = new ParserConfig()
 
