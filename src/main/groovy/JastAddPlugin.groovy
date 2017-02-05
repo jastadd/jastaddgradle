@@ -21,13 +21,16 @@ class JastAddPlugin implements Plugin<Project> {
 }
 
 class ScannerConfig {
+	/** The name of the generated scanner. */
+	String name = 'JavaScanner'
+
 	/** Directory to generate scanner in. */
 	String genDir
 }
 
 class ParserConfig {
 	/** Generated parser name (default="JavaParser"). */
-	String name = "JavaParser"
+	String name = 'JavaParser'
 
 	/** Directory to generate parser in. */
 	String genDir
@@ -74,7 +77,7 @@ class JastAddExtension {
 			def jastaddFiles = project.files(
 				module.files(project, 'jastadd')
 			)
-			def parserName = parser.name
+			def scannerDir = scanner.genDir ?: "${genDir}/scanner"
 			def parserDir = parser.genDir ?: "${genDir}/parser"
 			def outdir = genDir
 			def relpath = { path ->
@@ -90,18 +93,18 @@ class JastAddExtension {
 				writer.writeLine 'echo "Generating scanner..."'
 				writer.write 'cat'
 				scannerFiles.each { writer.write " \\\n    '${relpath(it)}'" }
-				writer.writeLine ' \\\n    > "build/tmp/JavaScanner.flex"'
-				writer.writeLine "mkdir -p \"${genDir}/scanner\""
-				writer.writeLine "\${JFLEX} -d \"${genDir}/scanner\" --nobak \"build/tmp/JavaScanner.flex\""
+				writer.writeLine " \\\n    > \"build/tmp/${scanner.name}.flex\""
+				writer.writeLine "mkdir -p \"${scannerDir}\""
+				writer.writeLine "\${JFLEX} -d \"${scannerDir}\" --nobak \"build/tmp/${scanner.name}.flex\""
 
 				// Generate parser.
 				writer.writeLine 'echo "Generating parser..."'
 				writer.write 'cat'
 				parserFiles.each { writer.write " \\\n    '${relpath(it)}'" }
-				writer.writeLine " \\\n    > \"build/tmp/${parserName}.all\""
-				writer.writeLine "\${JASTADDPARSER} \"build/tmp/${parserName}.all\" \"build/tmp/${parserName}.beaver\""
+				writer.writeLine " \\\n    > \"build/tmp/${parser.name}.all\""
+				writer.writeLine "\${JASTADDPARSER} \"build/tmp/${parser.name}.all\" \"build/tmp/${parser.name}.beaver\""
 				writer.writeLine "mkdir -p \"${parserDir}\""
-				writer.writeLine "\${BEAVER} -d \"${parserDir}\" -t -c -w \"build/tmp/${parserName}.beaver\""
+				writer.writeLine "\${BEAVER} -d \"${parserDir}\" -t -c -w \"build/tmp/${parser.name}.beaver\""
 
 				// Generate Java code with JastAdd.
 				writer.writeLine 'echo "Generating node types and weaving aspects..."'
@@ -178,11 +181,11 @@ class JastAddExtension {
 				def inputFiles = project.files(module.files(project, 'scanner'))
 				def outdir = project.file(scanner.genDir ?: "${genDir}/scanner")
 				outdir.mkdirs()
-				ant.concat(destfile: "${temporaryDir}/JavaScanner.flex",
+				ant.concat(destfile: "${temporaryDir}/${scanner.name}.flex",
 					binary: true, force: false) {
 					inputFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
 				}
-				args ([ '-d', outdir.path, "${temporaryDir}/JavaScanner.flex" ])
+				args ([ '-d', outdir.path, "${temporaryDir}/${scanner.name}.flex" ])
 			}
 		}
 
