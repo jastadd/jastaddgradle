@@ -21,16 +21,16 @@ class JastAddPlugin implements Plugin<Project> {
 }
 
 class ScannerConfig {
-	/** The name of the generated scanner. */
-	String name = 'JavaScanner'
+	/** The name of the generated scanner (default="Scanner"). */
+	String name = 'Scanner'
 
 	/** Directory to generate scanner in. */
 	String genDir
 }
 
 class ParserConfig {
-	/** Generated parser name (default="JavaParser"). */
-	String name = 'JavaParser'
+	/** Generated parser name (default="Parser"). */
+	String name = 'Parser'
 
 	/** Directory to generate parser in. */
 	String genDir

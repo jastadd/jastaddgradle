@@ -1,3 +1,9 @@
+1.10.4 - TBD
+
+    * Added scanner.name configuration option (default="Scanner").
+    * The scanner name is used as the JFlex file name.
+    * Changed default parser name to "Parser".
+
 1.10.3 - 2017-01-02
 
     * Replaced some Ant tasks by Gradle's JavaExec.
