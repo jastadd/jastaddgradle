@@ -1,5 +1,7 @@
-1.10.4 - TBD
+1.10.4 - 2017-02-21
 
+    * Removed use of Task.leftShift(Closure) to remove Gradle deprecation
+      warning.
     * Added scanner.name configuration option (default="Scanner").
     * The scanner name is used as the JFlex file name.
     * Changed default parser name to "Parser".

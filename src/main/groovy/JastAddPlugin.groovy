@@ -66,7 +66,7 @@ class JastAddExtension {
 
 		project.sourceSets.main.java.srcDir { genDir }
 
-		project.task('bashBuild') << {
+		project.task('bashBuild').doLast {
 			description 'Generates a Bash script to build this project.'
 			def scannerFiles = project.files(
 				module.files(project, 'scanner')
