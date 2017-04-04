@@ -237,7 +237,7 @@ class JastAddExtension {
 		// Only if buildInfoDir is not null:
 		project.task('buildInfo') {
 			description 'Generates a property file with the module name.'
-			outputs.dir { buildInfoDir ? project.file(buildInfoDir) : null }
+			outputs.dir { project.file(buildInfoDir ?: "${genDir}/buildinfo") }
 			doLast {
 				if (buildInfoDir) {
 					def date = new Date()
