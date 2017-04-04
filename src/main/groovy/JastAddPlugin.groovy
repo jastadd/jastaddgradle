@@ -269,6 +269,7 @@ class JastAddExtension {
 		project.clean.dependsOn 'cleanGen'
 		project.compileJava.dependsOn 'generateJava'
 		project.processResources.dependsOn 'buildInfo'
+		project.buildInfo.onlyIf { !(buildInfoDir ?: "").isEmpty() }
 	}
 
 	/** Load module specifications. */
