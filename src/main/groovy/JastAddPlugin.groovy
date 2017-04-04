@@ -269,6 +269,8 @@ class JastAddExtension {
 		project.clean.dependsOn 'cleanGen'
 		project.compileJava.dependsOn 'generateJava'
 		project.processResources.dependsOn 'buildInfo'
+
+		// Run the buildInfo task only if buildInfoDir is set.
 		project.buildInfo.onlyIf { !(buildInfoDir ?: "").isEmpty() }
 	}
 
