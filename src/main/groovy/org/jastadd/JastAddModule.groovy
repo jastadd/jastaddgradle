@@ -1,3 +1,5 @@
+package org.jastadd
+
 import org.gradle.api.InvalidUserDataException
 
 class JastAddModule {

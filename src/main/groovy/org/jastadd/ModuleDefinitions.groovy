@@ -1,3 +1,5 @@
+package org.jastadd
+
 /** Delegate object for JastAdd module definitions. */
 class ModuleDefinitions {
 	def project

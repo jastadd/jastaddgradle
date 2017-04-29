@@ -1,3 +1,5 @@
+package org.jastadd
+
 import org.gradle.api.*
 import org.gradle.api.tasks.*
 import org.gradle.api.file.*

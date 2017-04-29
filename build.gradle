@@ -1,6 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'java-gradle-plugin'
 
 project.version = '1.10.5'
 project.group = 'org.jastadd'
@@ -10,9 +11,17 @@ project.archivesBaseName = 'jastaddgradle'
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
 
+repositories {
+  mavenCentral()
+}
+
 dependencies {
 	compile gradleApi()
 	compile localGroovy()
+
+  testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+    exclude module: 'groovy-all'
+  }
 }
 
 task javadocJar(type: Jar) {
