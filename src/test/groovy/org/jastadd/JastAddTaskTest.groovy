@@ -6,24 +6,33 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class SimpleBuildTest extends Specification {
+class JastAddTaskTest extends Specification {
   @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+  File genDir
   File buildFile
+  File grammarFile
 
   def setup() {
+    genDir = testProjectDir.newFolder('gen')
     buildFile = testProjectDir.newFile('build.gradle')
+    grammarFile = testProjectDir.newFile('grammar.ast')
   }
 
-  def 'jastadd.configureModuleBuild() exists'() {
+  def 'generating single AST node with JastAddTask'() {
+    def genPath = genDir.absolutePath.replace('\\', '\\\\')
+    def grammarPath = grammarFile.absolutePath.replace('\\', '\\\\')
+
     given:
+    grammarFile << """A;"""
     buildFile << """
       plugins {
         id 'java'
         id 'jastadd'
       }
 
-      jastadd {
-        configureModuleBuild()
+      task generateJava(type: org.jastadd.JastAddTask) {
+        outputDir = file('${genPath}')
+        sources = files('${grammarPath}')
       }
     """
 
@@ -31,9 +40,10 @@ class SimpleBuildTest extends Specification {
     def result = GradleRunner.create()
         .withProjectDir(testProjectDir.root)
         .withPluginClasspath()
+        .withArguments('generateJava')
         .build()
 
     then:
-    result.output.contains('Configuring JastAdd')
+    new File(genDir, 'A.java').isFile()
   }
 }
