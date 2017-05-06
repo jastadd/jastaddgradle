@@ -16,72 +16,76 @@ repositories {
 }
 
 dependencies {
-	compile gradleApi()
-	compile localGroovy()
+  compile gradleApi()
+  compile localGroovy()
 
   testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
     exclude module: 'groovy-all'
   }
 }
 
+task wrapper(type: Wrapper) {
+  gradleVersion = '3.5'
+}
+
 task javadocJar(type: Jar) {
-	classifier = 'javadoc'
-	from javadoc
+  classifier = 'javadoc'
+  from javadoc
 }
 
 task sourcesJar(type: Jar) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
+  classifier = 'sources'
+  from sourceSets.main.allSource
 }
 
 artifacts {
-	archives javadocJar, sourcesJar
+  archives javadocJar, sourcesJar
 }
 
 signing {
-	// Skip signing if there is no key configured:
-	required { project.hasProperty('signing.keyId') }
-	sign configurations.archives
+  // Skip signing if there is no key configured:
+  required { project.hasProperty('signing.keyId') }
+  sign configurations.archives
 }
 
 uploadArchives {
-	repositories.mavenDeployer {
-		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+  repositories.mavenDeployer {
+    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-		repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-			if (project.hasProperty('ossrhUsername')) {
-				authentication(userName: ossrhUsername, password: ossrhPassword)
-			}
-		}
+    repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+      if (project.hasProperty('ossrhUsername')) {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+    }
 
-		snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
-			if (project.hasProperty('ossrhUsername')) {
-				authentication(userName: ossrhUsername, password: ossrhPassword)
-			}
-		}
+    snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
+      if (project.hasProperty('ossrhUsername')) {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+    }
 
-		pom.project {
-			name 'JastAddGradle'
-			packaging 'jar'
-			description 'A Gradle build plugin for building JastAdd projects.'
-			url 'http://jastadd.org'
-			licenses {
-				license {
-					name 'Modified BSD License'
-					url 'http://opensource.org/licenses/BSD-3-Clause'
-					distribution 'repo'
-				}
-			}
-			developers {
-				developer {
-					name 'Jesper Öqvist'
-					email 'jesper.oqvist@cs.lth.se'
-				}
-			}
-			scm {
-				connection 'scm:git:https://bitbucket.org/joqvist/jastaddgradle.git'
-				url 'https://bitbucket.org/joqvist/jastaddgradle'
-			}
-		}
-	}
+    pom.project {
+      name 'JastAddGradle'
+      packaging 'jar'
+      description 'A Gradle build plugin for building JastAdd projects.'
+      url 'http://jastadd.org'
+      licenses {
+        license {
+          name 'Modified BSD License'
+          url 'http://opensource.org/licenses/BSD-3-Clause'
+          distribution 'repo'
+        }
+      }
+      developers {
+        developer {
+          name 'Jesper Öqvist'
+          email 'jesper.oqvist@cs.lth.se'
+        }
+      }
+      scm {
+        connection 'scm:git:https://bitbucket.org/joqvist/jastaddgradle.git'
+        url 'https://bitbucket.org/joqvist/jastaddgradle'
+      }
+    }
+  }
 }
