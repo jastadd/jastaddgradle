@@ -16,7 +16,7 @@ class JastAddPlugin implements Plugin<Project> {
 		}
 
 		project.dependencies {
-			jastadd2 'org.jastadd:jastadd:2.2.3'
+			jastadd2 'org.jastadd:jastadd:2.3.0'
 		}
 	}
 
