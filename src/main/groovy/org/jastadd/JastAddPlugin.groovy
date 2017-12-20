@@ -143,7 +143,7 @@ class JastAddExtension {
 			}
 		}
 
-		project.task('generateJava', type: JavaExec, dependsOn: [ 'scanner', 'parser' ]) {
+		project.task('generateAst', type: JavaExec) {
 			description 'Generates Java sources from JastAdd code.'
 
 			inputs.files { moduleSources + module.files(project, 'jastadd') }
@@ -167,7 +167,7 @@ class JastAddExtension {
 			}
 		}
 
-		project.task('scanner', type: JavaExec) {
+		project.task('generateScanner', type: JavaExec) {
 			description 'Generates scanner with JFlex.'
 
 			inputs.files { moduleSources + module.files(project, 'scanner') }
@@ -214,7 +214,7 @@ class JastAddExtension {
 			}
 		}
 
-		project.task('parser', type: JavaExec, dependsOn: [ 'preprocessParser' ]) {
+		project.task('generateParser', type: JavaExec, dependsOn: [ 'preprocessParser' ]) {
 			description 'Generates parser with Beaver.'
 
 			inputs.files {
@@ -269,7 +269,7 @@ class JastAddExtension {
 		}
 
 		project.clean.dependsOn 'cleanGen'
-		project.compileJava.dependsOn 'generateJava'
+		project.compileJava.dependsOn 'generateAst', 'generateScanner', 'generateParser'
 		project.processResources.dependsOn 'buildInfo'
 
 		// Run the buildInfo task only if buildInfoDir is set.
@@ -278,7 +278,11 @@ class JastAddExtension {
 
 	/** Load module specifications. */
 	void modules(String... modules) {
-		modules.each { loader.load(project, it) }
+		modules.each { loader.load(project.file(it)) }
+	}
+
+	void modules(File... modules) {
+		modules.each { loader.load(it) }
 	}
 
 	/** Module instance. */

@@ -6,3 +6,7 @@
 
 # vi
 *.swp
+
+# IDE
+/.idea/
+*.iml

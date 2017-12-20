@@ -128,6 +128,7 @@ class JastAddModule {
 
 	/** All files for the component in this module and all included modules. */
 	def files(project, component) {
+		def collection =
 		findFiles(project, component, gatherExcludes(component, [] as Set), [] as Set)
 			.sort{ a, b ->
 				def aa = a[0]
@@ -144,6 +145,7 @@ class JastAddModule {
 				0
 			}.collect{ it[1].collect{ it } }.flatten() as LinkedHashSet
 		// TODO(joqvist): generate warning if there were duplicate files?
+		return collection
 	}
 
 	private def findFiles(project, component, excludeFroms, visited) {

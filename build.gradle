@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'java-gradle-plugin'
 
-project.version = '1.10.7'
+project.version = '1.11.0'
 project.group = 'org.jastadd'
 project.archivesBaseName = 'jastaddgradle'
 

@@ -9,20 +9,18 @@ class ModuleLoader {
 		this.extension = extension;
 	}
 
-	void load(project, moduleName) {
-		def source = project.file(moduleName)
-		def dir = source.parent
-		if (source.isDirectory()) {
-			source = project.file("${moduleName}/modules")
-			dir = moduleName
+	void load(String moduleFile) {
+  }
+
+	void load(File moduleFile) {
+		if (!moduleFile.exists()) {
+			throw new InvalidUserDataException(
+          "Could not load module definitions from file: ${moduleFile}")
 		}
-		if (!source.exists()) {
-			throw new InvalidUserDataException("Could not load module definitions: ${moduleName}")
-		}
-		extension.addModuleSource source
-		def code = source.text
+		extension.addModuleSource moduleFile
+		def code = moduleFile.text
 		def closure = new GroovyShell().evaluate("{->${code}}")
-		closure.delegate = new ModuleDefinitions(this, project, dir)
+		closure.delegate = new ModuleDefinitions(this, moduleFile.parentFile)
 		closure.resolveStrategy = Closure.DELEGATE_ONLY
 		closure()
 	}
