@@ -39,6 +39,10 @@ class SimpleBuildTest extends Specification {
 
   def 'simple module definition and code generation'() {
     given:
+    File settings = testProjectDir.newFile('settings.gradle')
+    settings << """
+    rootProject.name = "funlang"
+    """
     buildFile << """
     plugins {
       id 'java'
@@ -82,7 +86,7 @@ class SimpleBuildTest extends Specification {
         .build()
 
     then:
-    result.output.contains('Configuring JastAdd')
+    result.output.contains('Configuring JastAdd build for funlang.')
 
     // Check that JastAdd generated AST source files:
     ast.exists()
@@ -95,6 +99,10 @@ class SimpleBuildTest extends Specification {
 
   def 'module definition can include another module definition'() {
     given:
+    File settings = testProjectDir.newFile('settings.gradle')
+    settings << """
+    rootProject.name = "funlang"
+    """
     buildFile << """
     plugins {
       id 'java'
@@ -142,7 +150,7 @@ class SimpleBuildTest extends Specification {
         .build()
 
     then:
-    result.output.contains('Configuring JastAdd')
+    result.output.contains('Configuring JastAdd build for funlang.')
 
     // Check that JastAdd generated AST source files:
     ast.exists()

@@ -49,7 +49,7 @@ class JastAddExtension {
 	List moduleSources = []
 
 	JastAddExtension(Project project) {
-		println 'Configuring JastAdd'
+		println "Configuring JastAdd build for ${project.name}."
 		loader = new ModuleLoader(this)
 		this.project = project
 	}
