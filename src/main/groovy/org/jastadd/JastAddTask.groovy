@@ -14,28 +14,28 @@ import org.gradle.api.file.FileCollection
  * This task type is useful for simple and non-modular JastAdd builds.
  */
 class JastAddTask extends JavaExec {
-	@InputFiles
-	FileCollection sources
+  @InputFiles
+  FileCollection sources
 
-	@OutputDirectory
-	File outputDir
+  @OutputDirectory
+  File outputDir
 
-	@Input
-	def options = []
+  @Input
+  def options = []
 
-	JastAddTask() {
-		setMain('org.jastadd.JastAdd')
-		setClasspath(project.configurations.jastadd2)
-		outputDir = project.file('src/gen')
-	}
+  JastAddTask() {
+    setMain('org.jastadd.JastAdd')
+    setClasspath(project.configurations.jastadd2)
+    outputDir = project.file('src/gen')
+  }
 
-	@Override
-	@TaskAction
-	public void exec() {
-		// First, clean the destination directory so old generated files are removed.
-		outputDir.eachFile { it.delete() }
-		main = 'org.jastadd.JastAdd'
-		args = [ "--o=$outputDir" ] + options + sources.files
-		super.exec();
-	}
+  @Override
+  @TaskAction
+  public void exec() {
+    // First, clean the destination directory so old generated files are removed.
+    outputDir.eachFile { it.delete() }
+    main = 'org.jastadd.JastAdd'
+    args = [ "--o=$outputDir" ] + options + sources.files
+    super.exec();
+  }
 }
