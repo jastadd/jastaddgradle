@@ -19,8 +19,11 @@ class ModuleLoader {
     }
     extension.addModuleSource moduleFile
     def code = moduleFile.text
-    def closure = new GroovyShell().evaluate("{->${code}}")
-    closure.delegate = new ModuleDefinitions(this, moduleFile.parentFile)
+    load(new GroovyShell().evaluate("{->${code}}"), moduleFile.parentFile)
+  }
+
+  void load(Closure closure, File basedir) {
+    closure.delegate = new ModuleDefinitions(this, basedir)
     closure.resolveStrategy = Closure.DELEGATE_ONLY
     closure()
   }

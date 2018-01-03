@@ -325,4 +325,53 @@ class SimpleBuildTest extends Specification {
     result.task(':generateScanner').outcome == TaskOutcome.SKIPPED
   }
 
+  def 'inline module definition and code generation'() {
+    given:
+    buildFile << """
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      // Inline module definitions.
+      modules {
+        module("funlang") {
+          moduleName "FunLang 1.0"
+          moduleVariant "backend"
+
+          jastadd {
+            include "*.ast"
+          }
+        }
+      }
+
+      module = 'funlang'
+
+      genDir = '.'
+      astPackage = 'ast'
+    }
+    """
+    File astFile = testProjectDir.newFile('funlang.ast')
+    astFile << """
+    Program ::= Fun*;
+    Fun ::= <ID> Param*;
+    Param ::= <ID>;
+    """
+    File ast = new File(testProjectDir.getRoot(), 'ast')
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('compileJava')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.task(':generateAst').outcome == TaskOutcome.SUCCESS
+    result.task(':compileJava').outcome == TaskOutcome.SUCCESS
+  }
+
 }

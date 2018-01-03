@@ -1,5 +1,6 @@
 LATEST
 
+    * Added inline module definitions (modules { ... }).
     * The --beaver option to jastadd can now be switched off by
       setting jastad.useBeaver = false.
     * Skip parser generation if the current module contains no parser sources.

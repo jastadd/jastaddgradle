@@ -331,6 +331,11 @@ class JastAddExtension {
     modules.each { loader.load(it) }
   }
 
+  // Defines modules with a closure.
+  void modules(Closure closure) {
+    loader.load(closure, project.projectDir)
+  }
+
   /** Module instance. */
   private JastAddModule module
 
