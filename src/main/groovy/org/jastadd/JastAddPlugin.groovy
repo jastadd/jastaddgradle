@@ -185,13 +185,20 @@ class JastAddExtension {
       doFirst {
         def outdir = project.file(genDir)
         outdir.mkdirs()
+        def addBeaverOption
+        if (useBeaver == 'maybe') {
+          addBeaverOption = !module.files(project, 'parser').isEmpty()
+        } else {
+          addBeaverOption = useBeaver
+        }
+        def beaverOption = addBeaverOption ? [ '--beaver' ] : []
         args ([ '--rewrite=cnta',
           '--safeLazy',
-          '--beaver',
           "--package=${astPackage}",
           '--visitCheck=false',
           '--cacheCycle=false',
           "--o=${outdir.path}" ]
+          + beaverOption
           + extraJastAddOptions
           + module.files(project, 'jastadd'))
       }
@@ -335,7 +342,7 @@ class JastAddExtension {
     module = getModule(name)
     // Add Java sources included in modules to source set.
     project.compileJava.source project.files(module.files(project, 'java')),
-      project.sourceSets.main.java
+        project.sourceSets.main.java
   }
 
   /** Get the target module instance. */
@@ -353,6 +360,9 @@ class JastAddExtension {
   String astPackage
   String genDir
   String buildInfoDir
+
+  /** Set to {@code true} or {@code false} in JastAdd configuration. */
+  def useBeaver = 'maybe'
   List<String> extraJastAddOptions = [];
   ScannerConfig scanner = new ScannerConfig()
   ParserConfig parser = new ParserConfig()
