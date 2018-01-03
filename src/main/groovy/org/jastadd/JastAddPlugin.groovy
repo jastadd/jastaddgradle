@@ -1,3 +1,33 @@
+/* Copyright (c) 2014-2018, Jesper Öqvist
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.jastadd
 
 import org.gradle.api.*
@@ -194,6 +224,9 @@ class JastAddExtension {
 		project.task('preprocessParser', type: JavaExec) {
 			description 'Generates Beaver parser with JastAddParser.'
 
+			// Generate parser only if there are some source files.
+			onlyIf { !module.files(project, 'parser').isEmpty() }
+
 			inputs.files { moduleSources + module.files(project, 'parser') }
 			outputs.file {
 				project.file("${temporaryDir}/${parser.name}.beaver")
@@ -217,6 +250,9 @@ class JastAddExtension {
 		project.task('generateParser', type: JavaExec, dependsOn: [ 'preprocessParser' ]) {
 			description 'Generates parser with Beaver.'
 
+			// Generate parser only if there are some source files.
+			onlyIf { !module.files(project, 'parser').isEmpty() }
+
 			inputs.files {
 				project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
 			}
@@ -236,10 +272,13 @@ class JastAddExtension {
 			}
 		}
 
-		// Only if buildInfoDir is not null:
 		project.task('buildInfo') {
 			description 'Generates a property file with the module name.'
 			outputs.dir { project.file(buildInfoDir ?: "${genDir}/buildinfo") }
+
+			// Generate build info only if buildInfoDir is set.
+			onlyIf { !(buildInfoDir ?: "").isEmpty() }
+
 			doLast {
 				if (buildInfoDir) {
 					def date = new Date()
@@ -271,9 +310,6 @@ class JastAddExtension {
 		project.clean.dependsOn 'cleanGen'
 		project.compileJava.dependsOn 'generateAst', 'generateScanner', 'generateParser'
 		project.processResources.dependsOn 'buildInfo'
-
-		// Run the buildInfo task only if buildInfoDir is set.
-		project.buildInfo.onlyIf { !(buildInfoDir ?: "").isEmpty() }
 	}
 
 	/** Load module specifications. */

@@ -1,6 +1,7 @@
 package org.jastadd
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
 import static org.gradle.testkit.runner.TaskOutcome.*
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -140,7 +141,6 @@ class SimpleBuildTest extends Specification {
     Fun ::= <ID> Param*;
     Param ::= <ID>;
     """
-    File ast = new File(testProjectDir.getRoot(), 'ast')
 
     when:
     def result = GradleRunner.create()
@@ -150,9 +150,10 @@ class SimpleBuildTest extends Specification {
         .build()
 
     then:
-    result.output.contains('Configuring JastAdd build for funlang.')
+    result.task(':generateAst').outcome == TaskOutcome.SUCCESS
 
     // Check that JastAdd generated AST source files:
+    File ast = new File(testProjectDir.getRoot(), 'ast')
     ast.exists()
     assert new File(ast, 'ASTNode.java').exists()
     assert new File(ast, 'ASTState.java').exists()
@@ -160,4 +161,43 @@ class SimpleBuildTest extends Specification {
     assert new File(ast, 'Fun.java').exists()
     assert new File(ast, 'Param.java').exists()
   }
+
+  def 'parser generation skipped when there are no parser sources'() {
+    given:
+    buildFile << """
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      modules project.file('jastadd_modules')
+      module 'funlang'
+
+      genDir = '.'
+      astPackage = 'ast'
+    }
+    """
+    File modules = testProjectDir.newFile('jastadd_modules')
+    modules << """
+    module("funlang") {
+      moduleName "FunLang 1.0"
+      moduleVariant "backend"
+    }
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('generateParser')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.task(':generateParser').outcome == TaskOutcome.SKIPPED
+    result.task(':preprocessParser').outcome == TaskOutcome.SKIPPED
+  }
+
 }

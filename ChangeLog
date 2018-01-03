@@ -1,3 +1,7 @@
+LATEST
+
+    * Skip parser generation if the current module contains no parser sources.
+
 1.11.0 - 2017-12-20
 
     * Removed implicit module definitions.
