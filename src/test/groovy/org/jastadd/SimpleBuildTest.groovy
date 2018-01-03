@@ -200,4 +200,41 @@ class SimpleBuildTest extends Specification {
     result.task(':preprocessParser').outcome == TaskOutcome.SKIPPED
   }
 
+  def 'scanner generation skipped when there are no scanner sources'() {
+    given:
+    buildFile << """
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      modules project.file('jastadd_modules')
+      module 'funlang'
+
+      genDir = '.'
+      astPackage = 'ast'
+    }
+    """
+    File modules = testProjectDir.newFile('jastadd_modules')
+    modules << """
+    module("funlang") {
+      moduleName "FunLang 1.0"
+      moduleVariant "backend"
+    }
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('generateScanner')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.task(':generateScanner').outcome == TaskOutcome.SKIPPED
+  }
+
 }

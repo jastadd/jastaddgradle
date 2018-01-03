@@ -200,6 +200,9 @@ class JastAddExtension {
     project.task('generateScanner', type: JavaExec) {
       description 'Generates scanner with JFlex.'
 
+      // Generate scanner only if there are some source files.
+      onlyIf { !module.files(project, 'scanner').isEmpty() }
+
       inputs.files { moduleSources + module.files(project, 'scanner') }
       outputs.dir {
         // This needs to be a closure so that the genDir configuration variable can be used.
