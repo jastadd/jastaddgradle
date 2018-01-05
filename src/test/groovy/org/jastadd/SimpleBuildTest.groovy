@@ -61,6 +61,7 @@ class SimpleBuildTest extends Specification {
     def result = GradleRunner.create()
         .withProjectDir(testProjectDir.root)
         .withPluginClasspath()
+        .withArguments('--info')
         .build()
 
     then:
@@ -110,7 +111,7 @@ class SimpleBuildTest extends Specification {
     when:
     def result = GradleRunner.create()
         .withProjectDir(testProjectDir.root)
-        .withArguments('compileJava')
+        .withArguments('--info', 'compileJava')
         .withPluginClasspath()
         .build()
 

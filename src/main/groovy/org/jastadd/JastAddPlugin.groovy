@@ -33,6 +33,7 @@ package org.jastadd
 import org.gradle.api.*
 import org.gradle.api.tasks.*
 import org.gradle.api.file.*
+import org.gradle.api.logging.*
 
 class JastAddPlugin implements Plugin<Project> {
 
@@ -69,6 +70,8 @@ class ParserConfig {
 }
 
 class JastAddExtension {
+  private static final Logger LOG = Logging.getLogger(JastAddPlugin.class)
+
   Project project
   final ModuleLoader loader
 
@@ -79,12 +82,12 @@ class JastAddExtension {
   List moduleSources = []
 
   JastAddExtension(Project project) {
-    println "Configuring JastAdd build for ${project.name}."
     loader = new ModuleLoader(this)
     this.project = project
   }
 
   void configureModuleBuild() {
+    LOG.info("Configuring JastAdd build for ${project.name}.")
     project.configurations.create('jastaddParser')
     project.configurations.create('jflex')
     project.configurations.create('beaver')

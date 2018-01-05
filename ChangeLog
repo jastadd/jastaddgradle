@@ -5,6 +5,7 @@ LATEST
       setting jastad.useBeaver = false.
     * Skip parser generation if the current module contains no parser sources.
     * Skip scanner generation if the current module contains no parser sources.
+    * The "Configuring JastAdd" message is now logged as an info message.
 
 1.11.0 - 2017-12-20
 

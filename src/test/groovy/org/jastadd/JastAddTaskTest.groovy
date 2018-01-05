@@ -40,10 +40,11 @@ class JastAddTaskTest extends Specification {
     def result = GradleRunner.create()
         .withProjectDir(testProjectDir.root)
         .withPluginClasspath()
-        .withArguments('generateJava')
+        .withArguments('--info', 'generateJava')
         .build()
 
     then:
+    !result.output.contains('Configuring JastAdd')
     new File(genDir, 'A.java').isFile()
   }
 }
