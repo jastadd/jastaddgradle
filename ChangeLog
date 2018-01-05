@@ -1,5 +1,6 @@
 LATEST
 
+    * Added ragdoc task for generating RagDoc metadata.
     * Added inline module definitions (modules { ... }).
     * The --beaver option to jastadd can now be switched off by
       setting jastad.useBeaver = false.

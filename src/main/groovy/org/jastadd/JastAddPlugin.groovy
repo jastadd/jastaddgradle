@@ -234,6 +234,23 @@ class JastAddExtension {
       }
     }
 
+    project.task('ragdoc', type: JavaExec) {
+      description 'Generates RagDoc metadata for this JastAdd project.'
+
+      // RD-Builder dependency should be added by user in the ragdoc
+      // configuration (only if ragdoc task is run).
+
+      inputs.files { project.sourceSets.main.java.sourceDirectories }
+
+      main = 'org.extendj.ragdoc.RagDocBuilder'
+
+      doFirst {
+        classpath = project.configurations.ragdoc
+        def sourceFiles = project.sourceSets.main.java.sourceDirectories.asFileTree.files
+        args ([ '-d', 'doc', ] + sourceFiles)
+      }
+    }
+
     project.task('preprocessParser', type: JavaExec) {
       description 'Generates Beaver parser with JastAddParser.'
 
