@@ -1,7 +1,10 @@
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'java-gradle-plugin'
+plugins {
+  id 'groovy'
+  id 'maven'
+  id 'signing'
+  id 'java-gradle-plugin'
+  id "com.gradle.plugin-publish" version "0.9.9"
+}
 
 project.version = '1.12.0'
 project.group = 'org.jastadd'
@@ -11,7 +14,7 @@ project.archivesBaseName = 'jastaddgradle'
 sourceCompatibility = targetCompatibility = '1.7'
 
 repositories {
-  mavenCentral()
+  jcenter()
 }
 
 dependencies {
@@ -83,6 +86,20 @@ if (project.hasProperty('ossrhUsername')) {
           url 'https://bitbucket.org/joqvist/jastaddgradle'
         }
       }
+    }
+  }
+}
+
+pluginBundle {
+  website = 'http://jastadd.org'
+  vcsUrl = 'https://github.com/jastadd/jastaddgradle'
+  description = 'Modular JastAdd project build plugin.'
+  tags = [ 'jastadd', 'codegen' ]
+
+  plugins {
+    jastaddPlugin {
+      id = 'org.jastadd'
+      displayName = 'JastAdd Gradle plugin'
     }
   }
 }
