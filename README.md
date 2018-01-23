@@ -125,5 +125,5 @@ A module file can look like this:
 
 Some example projects using JastAddGradle:
 
+* [ExtendJ Extension Base](https://bitbucket.org/extendj/extension-base)
 * [JastAdd Example: GradleBuild](http://jastadd.org/web/examples.php?example=GradleBuild)
-* [FinalChecker - ExtendJ extension demo](https://bitbucket.org/extendj/final-checker)
