@@ -1,6 +1,8 @@
 JastAddGradle
 =============
 
+[![Build Status](https://travis-ci.org/jastadd/jastaddgradle.svg?branch=master)](https://travis-ci.org/jastadd/jastaddgradle)
+
 Gradle plugin for JastAdd development.
 
 Can be used just to generate Java code using JastAdd, or for building an
