@@ -1,3 +1,8 @@
+LATEST
+
+  * Added `jastadd.ragroot` setting, for specifying the root directory for
+    the ragdoc task.
+
 1.12.0 - 2018-01-23
 
     * Added ragdoc task for generating RagDoc metadata.

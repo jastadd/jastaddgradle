@@ -81,9 +81,13 @@ class JastAddExtension {
   /** All module sources. */
   List moduleSources = []
 
+  /** Rag root directory for documentation generation. */
+  String ragroot
+
   JastAddExtension(Project project) {
     loader = new ModuleLoader(this)
     this.project = project
+    this.ragroot = project.rootDir
   }
 
   void configureModuleBuild() {
@@ -196,14 +200,14 @@ class JastAddExtension {
         }
         def beaverOption = addBeaverOption ? [ '--beaver' ] : []
         args ([ '--rewrite=cnta',
-          '--safeLazy',
-          "--package=${astPackage}",
-          '--visitCheck=false',
-          '--cacheCycle=false',
-          "--o=${outdir.path}" ]
-          + beaverOption
-          + extraJastAddOptions
-          + module.files(project, 'jastadd'))
+            '--safeLazy',
+            "--package=${astPackage}",
+            '--visitCheck=false',
+            '--cacheCycle=false',
+            "--o=${outdir.path}" ]
+            + beaverOption
+            + extraJastAddOptions
+            + module.files(project, 'jastadd'))
       }
     }
 
@@ -244,10 +248,14 @@ class JastAddExtension {
 
       main = 'org.extendj.ragdoc.RagDocBuilder'
 
+      def destDir = new File(project.docsDir, 'ragdoc')
       doFirst {
+        if (!destDir.isDirectory()) {
+          destDir.mkdirs()
+        }
         classpath = project.configurations.ragdoc
         def sourceFiles = project.sourceSets.main.java.sourceDirectories.asFileTree.files
-        args ([ '-d', 'doc', ] + sourceFiles)
+        args ([ '-d', "$destDir", '-ragroot', "$ragroot" ] + sourceFiles)
       }
     }
 

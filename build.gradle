@@ -67,7 +67,7 @@ if (project.hasProperty('ossrhUsername')) {
         name 'JastAddGradle'
         packaging 'jar'
         description 'A Gradle build plugin for building JastAdd projects.'
-        url 'http://jastadd.org'
+        url 'https://github.com/jastadd/jastaddgradle'
         licenses {
           license {
             name 'Modified BSD License'
