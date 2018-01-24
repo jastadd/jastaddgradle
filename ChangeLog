@@ -2,6 +2,7 @@ LATEST
 
   * Added `jastadd.ragroot` setting, for specifying the root directory for
     the ragdoc task.
+  * The ragdoc task now writes output to `${project.docsDir}/ragdoc`.
 
 1.12.0 - 2018-01-23
 
