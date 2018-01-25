@@ -1,4 +1,4 @@
-LATEST
+1.12.1 - 2018-01-25
 
   * Added `jastadd.ragroot` setting, for specifying the root directory for
     the ragdoc task.
