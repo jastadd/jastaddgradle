@@ -91,7 +91,7 @@ if (project.hasProperty('ossrhUsername')) {
 }
 
 pluginBundle {
-  website = 'http://jastadd.org'
+  website = 'https://github.com/jastadd/jastaddgradle'
   vcsUrl = 'https://github.com/jastadd/jastaddgradle'
   description = 'Modular JastAdd project build plugin.'
   tags = [ 'jastadd', 'codegen' ]
