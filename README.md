@@ -81,7 +81,7 @@ sources then scanner/parser will not be generated.
 
 ### Rebuilding
 
-The JastAdd Gradle plugin tries to rebuild whenver you make changes that could
+The JastAdd Gradle plugin tries to rebuild whenever you make changes that could
 affect generated code, but in some cases it does not work perfectly.  To ensure
 a full rebuild you can run `./gradlew clean`, or pass the `--rerun-tasks`
 option to Gradle when building your project.
@@ -143,7 +143,7 @@ current module files.
 
 ## Example Projects
 
-Some example projects using JastAddGradle:
+Some example projects using the JastAdd Gradle plugin:
 
 * [ExtendJ Extension Base](https://bitbucket.org/extendj/extension-base)
 * [JastAdd Example: GradleBuild](http://jastadd.org/web/examples.php?example=GradleBuild)
