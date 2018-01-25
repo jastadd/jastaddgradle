@@ -242,20 +242,26 @@ class JastAddExtension {
       description 'Generates RagDoc metadata for this JastAdd project.'
 
       // RD-Builder dependency should be added by user in the ragdoc
-      // configuration (only if ragdoc task is run).
+      // configuration (only needed if ragdoc task is run).
 
-      inputs.files { project.sourceSets.main.java.sourceDirectories }
+      inputs.files {
+        project.files(module.files(project, 'java')) + project.sourceSets.main.allJava.files
+      }
 
       main = 'org.extendj.ragdoc.RagDocBuilder'
 
-      def destDir = new File(project.docsDir, 'ragdoc')
       doFirst {
+        def destDir = new File(project.docsDir, 'ragdoc')
         if (!destDir.isDirectory()) {
           destDir.mkdirs()
         }
         classpath = project.configurations.ragdoc
-        def sourceFiles = project.sourceSets.main.java.sourceDirectories.asFileTree.files
-        args ([ '-d', "$destDir", '-ragroot', "$ragroot" ] + sourceFiles)
+        def sourceFiles = project.sourceSets.main.allJava.files
+        args ([ '-cp', project.sourceSets.main.compileClasspath.asPath,
+            '-d', "$destDir",
+            '-ragroot', "$ragroot" ]
+            + project.files(module.files(project, 'java'))
+            + sourceFiles)
       }
     }
 
