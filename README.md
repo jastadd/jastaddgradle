@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jastadd/jastaddgradle.svg?branch=master)](https://travis-ci.org/jastadd/jastaddgradle)
 
-Gradle plugin for JastAdd development.
+Gradle plugin for [JastAdd][1] development.
 
 Can be used just to generate Java code using JastAdd, or for building a
 modular project using JFlex and Beaver for scanner and parser generation.
@@ -15,24 +15,24 @@ for later Gradle versions.
 To add the plugin to your project, add this to your `build.gradle` file:
 
     plugins {
-      id "org.jastadd" version "1.12.0"
+      id "org.jastadd" version "1.12.1"
     }
 
 
-This configures the plugin to be downloaded from the Gradle plugin portal.
+This configures the plugin to be downloaded from the [Gradle plugin portal][2].
+
 
 ## Modular vs Non-Modular builds
 
 The JastAdd Gradle plugin can be used either as a simple code generator,
 or as a modular JastAdd project build system.
 
-The non-modular mode is useful if you want to build a very simple JastAdd project,
-with a single module. In the non-modular mode, you create a new build task
-to run JastAdd with your own provided source files.
+The non-modular mode can be used if you just want to use JastAdd to generate
+some code. This is useful for simple JastAdd projects.
 
-In the modular mode, the JastAdd Gradle plugin figures out which JastAdd source
-files to include in the build. The modular build can also generate a Beaver
-parser and JFlex scanner if needed.
+In the modular build mode, the JastAdd Gradle plugin figures out which JastAdd
+source files to include in the build. The modular build can also generate a
+Beaver parser and JFlex scanner if needed.
 
 
 ## Non-modular build setup
@@ -43,82 +43,102 @@ JastAdd is to use a non-modular JastAdd build.
 Non-modular builds can be set up using the Gradle task
 `org.jastadd.JastAddTask` provided by the JastAdd Gradle plugin:
 
+    plugins {
+      id "java"
+      id "org.jastadd" version "1.12.1"
+    }
     task generateJava(type: org.jastadd.JastAddTask) {
-        outputDir = file('src/gen')
-        sources = fileTree('src/jastadd')
+      outputDir = file('src/gen')
+      sources = fileTree('src/jastadd')
     }
 
 
-You may also want to make the `compileJava` plugin depend on the generated code:
+You should also add these two lines to make the default `compileJava` task
+depend on the JastAdd-generated code:
 
-    apply plugin: 'java'
     compileJava.dependsOn 'generateJava' // Generate code before compiling.
     sourceSets.main.java.srcDir 'src/gen' // Compiles the generated code.
 
 
 ## Modular build setup
 
-The JastAdd Gradle plugin allows building modular projects that use JFlex and
-Beaver by adding some default build tasks. A modular build can be configured by
-calling `jastadd.configureModuleBuild()`.  A few default build tasks are
-the generated:
+The JastAdd Gradle plugin can run JastAdd automatically with the right source files
+if you use the modular build mode. The JastAdd Gradle plugin also adds tasks to
+generate a JFlex scanner and a Beaver parser.
 
-1. Run JFlex to generate a scanner.
-2. Run Beaver to generate a parser.
-3. Run JastAdd to generate an attributed abstract grammar.
+A modular build can be configured by calling `jastadd.configureModuleBuild()`.
+This configures a couple of default tasks:
+
+* `generateAst`- runs JastAdd to generate the AST classes.
+* `generateScanner` - runs JFlex to generate a scanner.
+* `preprocessParser` - preprocesses parser source files with [JastAddParser][3].
+* `generateParser` - runs Beaver to generate a parser.
 
 The JastAdd Gradle plugin does not yet support other scanner and parser
-generator tools for modular builds.
+generator tools for modular builds, but if you don't include any scanner/parser
+sources then scanner/parser will not be generated.
 
 
 ### Rebuilding
 
-The JastAdd Gradle plugin does not always detect if source files were modified.
-To ensure a rebuild you can pass the `--rerun-tasks` option to Gradle when
-building your project.
+The JastAdd Gradle plugin tries to rebuild whenver you make changes that could
+affect generated code, but in some cases it does not work perfectly.  To ensure
+a full rebuild you can run `./gradlew clean`, or pass the `--rerun-tasks`
+option to Gradle when building your project.
 
-In particular, changes to JastAdd module specifications (`jastadd_modules` files)
-always require a rebuild to take effect.
+If an AST class has been deleted, it is usually necessary to run `./gradlew
+clean` to ensure that the generated class is removed.
+
 
 ### Example build
 
-The JastAdd Gradle plugin uses modules to figure out which files need to be passed
-to JastAdd for code generation.  Modules are declared in files named
-`jastadd_modules`. The location of these module files is specified using the
-`modules` command in the `jastadd` configuration. For example:
+Configuring a modular build requires that you provide module specifications to
+the JastAdd Gradle plugin. The module specifications are used to determine
+which files need to be passed to JastAdd for code generation.
+
+Modules are typically declared in files named `jastadd_modules`. The location
+of these module files is specified using the `modules` command in the `jastadd`
+configuration. For example:
 
     jastadd {
-        configureModuleBuild() // Add default build tasks for a modular build.
-        modules "jastadd_modules", "jastadd/java4/jastadd_modules" // Load these modules.
-        module "my module" // Select module to build.
+      configureModuleBuild() // Add default build tasks for a modular build.
+      modules "jastadd_modules", "jastadd/java4/jastadd_modules" // Load these modules.
+      module "my module" // Select module to build.
     }
 
 
 A module file can look like this:
 
     module("my module") {
-        moduleName "My Module 1.0"
-        moduleVariant "frontend"
+      imports "java8 frontend" // This module depends on "java8 frontend" from ExtendJ.
 
-        java {
-            basedir "src/main/java/"
-            include "**/*.java"
-        }
+      moduleName "My Module 1.0"
+      moduleVariant "frontend"
 
-        jastadd {
-            include "grammar/*.ast"
-            include "frontend/*.jadd"
-            include "frontend/*.jrag"
-        }
+      java {
+        basedir "src/main/java/"
+        include "**/*.java"
+      }
 
-        scanner {
-            include "scanner/Scanner.flex"
-        }
+      jastadd {
+        include "grammar/*.ast"
+        include "frontend/*.jadd"
+        include "frontend/*.jrag"
+      }
 
-        parser {
-            include "parser/Parser.parser"
-        }
+      scanner {
+        include "scanner/Scanner.flex"
+      }
+
+      parser {
+        include "parser/Parser.parser"
+      }
     }
+
+
+The `imports` statement is used to add a dependency to some other module.
+The included files from all transitive dependencies are included into the
+current module files.
 
 
 ## Example Projects
@@ -127,3 +147,8 @@ Some example projects using JastAddGradle:
 
 * [ExtendJ Extension Base](https://bitbucket.org/extendj/extension-base)
 * [JastAdd Example: GradleBuild](http://jastadd.org/web/examples.php?example=GradleBuild)
+
+
+[1]:http://jastadd.org/
+[2]:https://plugins.gradle.org/plugin/org.jastadd
+[3]:https://bitbucket.org/jastadd/jastaddparser
