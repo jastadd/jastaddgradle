@@ -1,3 +1,10 @@
+LATEST
+
+  * The jastadd2 configuration added by the JastAdd Gradle plugin now uses
+    default dependencies which can easily be overridden in a project that
+    uses the JastAdd Gradle plugin. This makes it easier to change JastAdd
+    version in a project using the plugin.
+
 1.12.1 - 2018-01-25
 
   * Added `jastadd.ragroot` setting, for specifying the root directory for

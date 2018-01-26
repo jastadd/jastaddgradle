@@ -36,7 +36,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class SimpleBuildTest extends Specification {
+class ModularBuildSpec extends Specification {
   @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
   File buildFile
 
@@ -123,11 +123,11 @@ class SimpleBuildTest extends Specification {
     // Check that JastAdd generated AST source files:
     File genDir = new File(testProjectDir.getRoot(), 'ast')
     genDir.exists()
-    assert new File(genDir, 'ASTNode.java').exists()
-    assert new File(genDir, 'ASTState.java').exists()
-    assert new File(genDir, 'Program.java').exists()
-    assert new File(genDir, 'Fun.java').exists()
-    assert new File(genDir, 'Param.java').exists()
+    new File(genDir, 'ASTNode.java').exists()
+    new File(genDir, 'ASTState.java').exists()
+    new File(genDir, 'Program.java').exists()
+    new File(genDir, 'Fun.java').exists()
+    new File(genDir, 'Param.java').exists()
   }
 
   def 'useBeaver works'() {

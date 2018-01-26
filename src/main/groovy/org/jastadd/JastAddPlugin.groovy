@@ -41,13 +41,12 @@ class JastAddPlugin implements Plugin<Project> {
     def jastadd = project.extensions.create('jastadd', JastAddExtension, project)
 
     project.configurations.create('jastadd2')
+    project.configurations['jastadd2'].defaultDependencies { deps ->
+      deps.add(project.dependencies.create('org.jastadd:jastadd:2.3.0'))
+    }
 
     project.repositories {
       mavenCentral()
-    }
-
-    project.dependencies {
-      jastadd2 'org.jastadd:jastadd:2.3.0'
     }
   }
 
@@ -92,15 +91,21 @@ class JastAddExtension {
 
   void configureModuleBuild() {
     LOG.info("Configuring JastAdd build for ${project.name}.")
-    project.configurations.create('jastaddParser')
-    project.configurations.create('jflex')
-    project.configurations.create('beaver')
 
-    project.dependencies {
-      jastaddParser 'org.jastadd:jastaddparser:1.0.3'
-      jastaddParser 'net.sf.beaver:beaver-rt:0.9.11'
-      jflex 'de.jflex:jflex:1.6.1'
-      beaver 'net.sf.beaver:beaver-ant:0.9.11'
+    project.configurations.create('jastaddParser')
+    project.configurations['jastaddParser'].defaultDependencies { deps ->
+      deps.add(project.dependencies.create('org.jastadd:jastaddparser:1.0.3'))
+      deps.add(project.dependencies.create('net.sf.beaver:beaver-rt:0.9.11'))
+    }
+
+    project.configurations.create('jflex')
+    project.configurations['jflex'].defaultDependencies { deps ->
+      deps.add(project.dependencies.create('de.jflex:jflex:1.6.1'))
+    }
+
+    project.configurations.create('beaver')
+    project.configurations['beaver'].defaultDependencies { deps ->
+      deps.add(project.dependencies.create('net.sf.beaver:beaver-ant:0.9.11'))
     }
 
     project.sourceSets.main.java.srcDir { genDir }
