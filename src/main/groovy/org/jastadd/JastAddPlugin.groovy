@@ -87,10 +87,18 @@ class JastAddExtension {
     loader = new ModuleLoader(this)
     this.project = project
     this.ragroot = project.rootDir
+    this.genDir = project.file('src/gen')
   }
 
   void configureModuleBuild() {
     LOG.info("Configuring JastAdd build for ${project.name}.")
+
+    project.gradle.taskGraph.whenReady {
+      if (!module) {
+        LOG.warn("No target JastAdd module is configured for ${project}. "
+            + 'Add jastadd.module = "..." to fix this.')
+      }
+    }
 
     project.configurations.create('jastaddParser')
     project.configurations['jastaddParser'].defaultDependencies { deps ->
@@ -188,7 +196,9 @@ class JastAddExtension {
     project.task('generateAst', type: JavaExec) {
       description 'Generates Java sources from JastAdd code.'
 
-      inputs.files { moduleSources + module.files(project, 'jastadd') }
+      onlyIf { module }
+
+      inputs.files { moduleSources + (module ? module.files(project, 'jastadd') : []) }
       outputs.dir { project.file(genDir) }
 
       classpath = project.configurations.jastadd2
@@ -220,9 +230,9 @@ class JastAddExtension {
       description 'Generates scanner with JFlex.'
 
       // Generate scanner only if there are some source files.
-      onlyIf { !module.files(project, 'scanner').isEmpty() }
+      onlyIf { module && !module.files(project, 'scanner').isEmpty() }
 
-      inputs.files { moduleSources + module.files(project, 'scanner') }
+      inputs.files { moduleSources + (module ? module.files(project, 'scanner') : []) }
       outputs.dir {
         // This needs to be a closure so that the genDir configuration variable can be used.
         project.file(scanner.genDir ?: "${genDir}/scanner")
@@ -274,9 +284,9 @@ class JastAddExtension {
       description 'Generates Beaver parser with JastAddParser.'
 
       // Generate parser only if there are some source files.
-      onlyIf { !module.files(project, 'parser').isEmpty() }
+      onlyIf { module && !module.files(project, 'parser').isEmpty() }
 
-      inputs.files { moduleSources + module.files(project, 'parser') }
+      inputs.files { moduleSources + (module ? module.files(project, 'parser') : []) }
       outputs.file {
         project.file("${temporaryDir}/${parser.name}.beaver")
       }
@@ -300,7 +310,7 @@ class JastAddExtension {
       description 'Generates parser with Beaver.'
 
       // Generate parser only if there are some source files.
-      onlyIf { !module.files(project, 'parser').isEmpty() }
+      onlyIf { module && !module.files(project, 'parser').isEmpty() }
 
       inputs.files {
         project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
@@ -326,7 +336,7 @@ class JastAddExtension {
       outputs.dir { project.file(buildInfoDir ?: "${genDir}/buildinfo") }
 
       // Generate build info only if buildInfoDir is set.
-      onlyIf { !(buildInfoDir ?: "").isEmpty() }
+      onlyIf { module && !(buildInfoDir ?: "").isEmpty() }
 
       doLast {
         if (buildInfoDir) {

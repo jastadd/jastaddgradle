@@ -1,5 +1,7 @@
 LATEST
 
+  * Improve error handling: if no target module is configured, a warning is
+    printed and all code generation tasks are skipped.
   * The jastadd2 configuration added by the JastAdd Gradle plugin now uses
     default dependencies which can easily be overridden in a project that
     uses the JastAdd Gradle plugin. This makes it easier to change JastAdd

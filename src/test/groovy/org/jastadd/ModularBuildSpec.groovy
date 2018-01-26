@@ -31,7 +31,6 @@ package org.jastadd
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import static org.gradle.testkit.runner.TaskOutcome.*
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -44,7 +43,7 @@ class ModularBuildSpec extends Specification {
     buildFile = testProjectDir.newFile('build.gradle')
   }
 
-  def 'jastadd.configureModuleBuild() exists'() {
+  def 'missing module = _ causes a warning'() {
     given:
     buildFile << """
       plugins {
@@ -55,6 +54,92 @@ class ModularBuildSpec extends Specification {
       jastadd {
         configureModuleBuild()
       }
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('generateAst')
+        .build()
+
+    then:
+    result.output.contains('No target JastAdd module is configured for ')
+    result.output.contains('Add jastadd.module = "..." to fix this.')
+  }
+
+  def ':generateAst is skipped if no module is configured'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'org.jastadd'
+      }
+      jastadd.configureModuleBuild()
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('generateAst')
+        .build()
+
+    then:
+    result.task(':generateAst').outcome == TaskOutcome.SKIPPED
+  }
+
+  def ':generateParser is skipped if no module is configured'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'org.jastadd'
+      }
+      jastadd.configureModuleBuild()
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('generateParser')
+        .build()
+
+    then:
+    result.task(':generateParser').outcome == TaskOutcome.SKIPPED
+  }
+
+  def ':generateScanner is skipped if no module is configured'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'org.jastadd'
+      }
+      jastadd.configureModuleBuild()
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('generateScanner')
+        .build()
+
+    then:
+    result.task(':generateScanner').outcome == TaskOutcome.SKIPPED
+  }
+
+  def 'jastadd.configureModuleBuild() exists'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'org.jastadd'
+      }
+
+      jastadd.configureModuleBuild()
     """
 
     when:
