@@ -1,8 +1,10 @@
 package org.jastadd
 
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.logging.*
 
 class JastAddModule {
+  private static final Logger LOG = Logging.getLogger(JastAddModule.class)
 
   class Aspect {
     String basedir = "."
@@ -97,6 +99,38 @@ class JastAddModule {
       if (value) return value
     }
     null
+  }
+
+  /**
+   * Check if there is an include pattern that does not match anything.
+   */
+  void checkEmptyIncludes(project) {
+    // TODO(joqvist): should include the line where the include pattern was defined in the warning.
+    // I do not know how to do that right now.
+    checkEmptyIncludes(project, [] as Set)
+  }
+
+  void checkEmptyIncludes(project, visited) {
+    if (visited.contains(this)) {
+      return
+    } else {
+      visited << this
+    }
+    imports.each{ it.checkEmptyIncludes(project, visited) }
+    for (component in [ 'jastadd', 'parser', 'scanner' ]) {
+      def includes = includes(component)
+      if (includes) {
+        for (include in includes) {
+          File base = componentBasedir(component)
+          def files = project.files(project.fileTree(
+              dir: base,
+              include: include[1]))
+          if (files.isEmpty()) {
+            LOG.warn("Include pattern does not match anything: \"${include[1]}\"")
+          }
+        }
+      }
+    }
   }
 
   def includes(component) {

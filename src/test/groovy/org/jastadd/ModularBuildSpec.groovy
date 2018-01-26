@@ -43,7 +43,7 @@ class ModularBuildSpec extends Specification {
     buildFile = testProjectDir.newFile('build.gradle')
   }
 
-  def 'missing module = _ causes a warning'() {
+  def 'a warning is generated if an include pattern does not match any files'() {
     given:
     buildFile << """
       plugins {
@@ -53,7 +53,41 @@ class ModularBuildSpec extends Specification {
 
       jastadd {
         configureModuleBuild()
+
+        modules {
+          module ("foo") {
+            jastadd {
+              include '*.jrag'
+            }
+          }
+        }
+
+        module = "foo"
       }
+
+      task nada() { }
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('nada')
+        .build()
+
+    then:
+    result.output.contains('Include pattern does not match anything: ')
+  }
+
+  def 'missing module = _ causes a warning'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'jastadd'
+      }
+
+      jastadd.configureModuleBuild()
     """
 
     when:

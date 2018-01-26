@@ -1,5 +1,6 @@
 LATEST
 
+  * Print a warning for include patterns that do not match anything.
   * Improve error handling: if no target module is configured, a warning is
     printed and all code generation tasks are skipped.
   * The jastadd2 configuration added by the JastAdd Gradle plugin now uses

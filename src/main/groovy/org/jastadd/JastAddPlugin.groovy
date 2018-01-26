@@ -94,10 +94,12 @@ class JastAddExtension {
     LOG.info("Configuring JastAdd build for ${project.name}.")
 
     project.gradle.taskGraph.whenReady {
+      // Run some checks before the build starts.
       if (!module) {
         LOG.warn("No target JastAdd module is configured for ${project}. "
             + 'Add jastadd.module = "..." to fix this.')
       }
+      module?.checkEmptyIncludes(project)
     }
 
     project.configurations.create('jastaddParser')
