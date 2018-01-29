@@ -1,4 +1,4 @@
-LATEST
+1.12.2 - 2018-01-29
 
   * Print a warning for include patterns that do not match anything.
   * Improve error handling: if no target module is configured, a warning is
