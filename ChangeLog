@@ -1,3 +1,6 @@
+1.12.3 - 2018-02-16
+  * Updated the default JastAdd dependency to version 2.3.1.
+
 1.12.2 - 2018-01-29
 
   * Print a warning for include patterns that do not match anything.
