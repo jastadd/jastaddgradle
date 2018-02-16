@@ -42,7 +42,7 @@ class JastAddPlugin implements Plugin<Project> {
 
     project.configurations.create('jastadd2')
     project.configurations['jastadd2'].defaultDependencies { deps ->
-      deps.add(project.dependencies.create('org.jastadd:jastadd:2.3.0'))
+      deps.add(project.dependencies.create('org.jastadd:jastadd:2.3.1'))
     }
 
     project.repositories {
