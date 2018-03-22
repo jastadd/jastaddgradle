@@ -257,6 +257,7 @@ class JastAddExtension {
 
     project.task('ragdoc', type: JavaExec) {
       description 'Generates RagDoc metadata for this JastAdd project.'
+      dependsOn 'generateAst'
 
       // RD-Builder dependency should be added by user in the ragdoc
       // configuration (only needed if ragdoc task is run).

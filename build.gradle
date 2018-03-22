@@ -6,7 +6,7 @@ plugins {
   id "com.gradle.plugin-publish" version "0.9.9"
 }
 
-project.version = '1.12.3'
+project.version = '1.12.4'
 project.group = 'org.jastadd'
 project.archivesBaseName = 'jastaddgradle'
 
