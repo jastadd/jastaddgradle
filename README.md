@@ -15,7 +15,7 @@ for later Gradle versions.
 To add the plugin to your project, add this to your `build.gradle` file:
 
     plugins {
-      id "org.jastadd" version "1.12.1"
+      id "org.jastadd" version "1.13.0"
     }
 
 
@@ -45,7 +45,7 @@ Non-modular builds can be set up using the Gradle task
 
     plugins {
       id "java"
-      id "org.jastadd" version "1.12.1"
+      id "org.jastadd" version "1.13.0"
     }
     task generateJava(type: org.jastadd.JastAddTask) {
       outputDir = file('src/gen')
