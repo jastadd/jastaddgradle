@@ -563,4 +563,35 @@ class ModularBuildSpec extends Specification {
     result.task(':compileJava').outcome == TaskOutcome.SUCCESS
   }
 
+  def 'unknown module error'() {
+    given:
+    buildFile << """
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      // Inline module definitions.
+      modules {
+      }
+
+      module = 'funlang'
+
+      astPackage = 'ast'
+    }
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('compileJava')
+        .withPluginClasspath()
+        .buildAndFail()
+
+    then:
+    result.output.contains('Unknown JastAdd module "funlang".')
+  }
 }

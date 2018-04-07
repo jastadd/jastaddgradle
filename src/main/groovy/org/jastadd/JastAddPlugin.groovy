@@ -365,6 +365,6 @@ class JastAddExtension {
         return module
       }
     }
-    throw new InvalidUserDataException("Unknown module ${name}")
+    throw new InvalidUserDataException("Unknown JastAdd module \"${name}\".")
   }
 }
