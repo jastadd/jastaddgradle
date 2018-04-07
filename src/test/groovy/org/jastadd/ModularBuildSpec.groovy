@@ -205,7 +205,6 @@ class ModularBuildSpec extends Specification {
       modules project.file('jastadd_modules')
       module 'funlang'
 
-      genDir = '.'
       astPackage = 'ast'
     }
     """
@@ -240,7 +239,7 @@ class ModularBuildSpec extends Specification {
     result.task(':compileJava').outcome == TaskOutcome.SUCCESS
 
     // Check that JastAdd generated AST source files:
-    File genDir = new File(testProjectDir.getRoot(), 'ast')
+    File genDir = new File(testProjectDir.getRoot(), 'build/generated-src/ast/ast')
     genDir.exists()
     new File(genDir, 'ASTNode.java').exists()
     new File(genDir, 'ASTState.java').exists()
@@ -268,7 +267,6 @@ class ModularBuildSpec extends Specification {
       module 'funlang'
 
       useBeaver = true // Normally false if there are no parser files.
-      genDir = '.'
       astPackage = 'ast'
     }
     """
@@ -301,7 +299,7 @@ class ModularBuildSpec extends Specification {
     result.task(':generateAst').outcome == TaskOutcome.SUCCESS
 
     // Check that ASTNode extends beaver.Symbol:
-    File genDir = new File(testProjectDir.getRoot(), 'ast')
+    File genDir = new File(testProjectDir.getRoot(), 'build/generated-src/ast/ast')
     genDir.exists()
     new File(genDir, 'ASTNode.java').readLines().any { it.contains('extends beaver.Symbol') }
   }
@@ -324,7 +322,6 @@ class ModularBuildSpec extends Specification {
       modules project.file('main_mods')
       module 'funlang'
 
-      genDir = '.'
       astPackage = 'ast'
     }
     """
@@ -361,7 +358,7 @@ class ModularBuildSpec extends Specification {
     result.task(':generateAst').outcome == TaskOutcome.SUCCESS
 
     // Check that JastAdd generated AST source files:
-    File ast = new File(testProjectDir.getRoot(), 'ast')
+    File ast = new File(testProjectDir.getRoot(), 'build/generated-src/ast/ast')
     ast.exists()
     new File(ast, 'ASTNode.java').exists()
     new File(ast, 'ASTState.java').exists()
@@ -384,7 +381,6 @@ class ModularBuildSpec extends Specification {
       modules project.file('jastadd_modules')
       module 'funlang'
 
-      genDir = '.'
       astPackage = 'ast'
     }
     """
@@ -422,7 +418,6 @@ class ModularBuildSpec extends Specification {
       modules project.file('jastadd_modules')
       module 'funlang'
 
-      genDir = '.'
       astPackage = 'ast'
     }
     """
@@ -470,7 +465,6 @@ class ModularBuildSpec extends Specification {
 
       module = 'funlang'
 
-      genDir = '.'
       astPackage = 'ast'
     }
     """
@@ -480,10 +474,85 @@ class ModularBuildSpec extends Specification {
     Fun ::= <ID> Param*;
     Param ::= <ID>;
     """
-    File ast = new File(testProjectDir.getRoot(), 'ast')
 
     when:
     def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('compileJava')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.task(':generateAst').outcome == TaskOutcome.SUCCESS
+    result.task(':compileJava').outcome == TaskOutcome.SUCCESS
+  }
+
+  def 'old generated code is removed (incrementally remove AST class)'() {
+    given:
+    buildFile << """
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      // Inline module definitions.
+      modules {
+        module("funlang") {
+          jastadd {
+            include "*.ast"
+            include "*.jrag"
+          }
+        }
+      }
+
+      module = 'funlang'
+
+      astPackage = 'ast'
+    }
+    """
+    File astFile = testProjectDir.newFile('funlang.ast')
+    astFile << """
+    Program ::= Fun*;
+    Fun ::= <ID> Param*;
+    Param ::= <ID>;
+    CrustyParam : Param;
+    """
+    File jragFile = testProjectDir.newFile('fun.jrag')
+    jragFile << """
+    aspect Fun {
+      syn int Param.crustyness() = 1;
+      eq CrustyParam.crustyness() = super.crustyness() * 1000;
+    }
+    """
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('compileJava')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.task(':generateAst').outcome == TaskOutcome.SUCCESS
+    result.task(':compileJava').outcome == TaskOutcome.SUCCESS
+
+    // Remove an AST class:
+    when:
+    astFile.delete()
+    astFile << """
+    Program ::= Fun*;
+    Fun ::= <ID> Param*;
+    Param ::= <ID>;
+    """
+    jragFile.delete()
+    jragFile << """
+    aspect Fun {
+    }
+    """
+    result = GradleRunner.create()
         .withProjectDir(testProjectDir.root)
         .withArguments('compileJava')
         .withPluginClasspath()

@@ -1,3 +1,10 @@
+1.13.0 - 2018-04-07
+  * Removed the bashBuild task.
+  * Removed the genDir configuration properties. Generated sources are now
+    output into the gradle build directory.
+  * Generated sources are now removed before generating new sources.
+    This fixes incremental rebuilds when an AST class has been removed.
+
 1.12.4 - 2018-03-22
   * The ragdoc task now depends on generateAst.
 

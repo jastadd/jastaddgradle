@@ -42,7 +42,7 @@ class JastAddPlugin implements Plugin<Project> {
 
     project.configurations.create('jastadd2')
     project.configurations['jastadd2'].defaultDependencies { deps ->
-      deps.add(project.dependencies.create('org.jastadd:jastadd:2.3.1'))
+      deps.add(project.dependencies.create('org.jastadd:jastadd:2.3.2'))
     }
 
     project.repositories {
@@ -55,17 +55,11 @@ class JastAddPlugin implements Plugin<Project> {
 class ScannerConfig {
   /** The name of the generated scanner (default="Scanner"). */
   String name = 'Scanner'
-
-  /** Directory to generate scanner in. */
-  String genDir
 }
 
 class ParserConfig {
   /** Generated parser name (default="Parser"). */
   String name = 'Parser'
-
-  /** Directory to generate parser in. */
-  String genDir
 }
 
 class JastAddExtension {
@@ -87,7 +81,6 @@ class JastAddExtension {
     loader = new ModuleLoader(this)
     this.project = project
     this.ragroot = project.rootDir
-    this.genDir = project.file('src/gen')
   }
 
   void configureModuleBuild() {
@@ -118,88 +111,16 @@ class JastAddExtension {
       deps.add(project.dependencies.create('net.sf.beaver:beaver-ant:0.9.11'))
     }
 
-    project.sourceSets.main.java.srcDir { genDir }
-
-    project.task('bashBuild').doLast {
-      description 'Generates a Bash script to build this project.'
-      def scannerFiles = project.files(
-        module.files(project, 'scanner')
-      )
-      def parserFiles = project.files(
-        module.files(project, 'parser')
-      )
-      def jastaddFiles = project.files(
-        module.files(project, 'jastadd')
-      )
-      def scannerDir = scanner.genDir ?: "${genDir}/scanner"
-      def parserDir = parser.genDir ?: "${genDir}/parser"
-      def outdir = genDir
-      def relpath = { path ->
-        project.projectDir.toURI().relativize(path.toURI()).toString()
-      }
-      project.file('build.sh').withWriter { writer ->
-        writer.writeLine '#!/bin/bash'
-        writer.writeLine 'set -eu'
-        writer.writeLine 'source config.sh # Configure the build with this file.'
-        writer.writeLine 'mkdir -p "build/tmp"'
-
-        // Generate scanner.
-        writer.writeLine 'echo "Generating scanner..."'
-        writer.write 'cat'
-        scannerFiles.each { writer.write " \\\n    '${relpath(it)}'" }
-        writer.writeLine " \\\n    > \"build/tmp/${scanner.name}.flex\""
-        writer.writeLine "mkdir -p \"${scannerDir}\""
-        writer.writeLine "\${JFLEX} -d \"${scannerDir}\" --nobak \"build/tmp/${scanner.name}.flex\""
-
-        // Generate parser.
-        writer.writeLine 'echo "Generating parser..."'
-        writer.write 'cat'
-        parserFiles.each { writer.write " \\\n    '${relpath(it)}'" }
-        writer.writeLine " \\\n    > \"build/tmp/${parser.name}.all\""
-        writer.writeLine "\${JASTADDPARSER} \"build/tmp/${parser.name}.all\" \"build/tmp/${parser.name}.beaver\""
-        writer.writeLine "mkdir -p \"${parserDir}\""
-        writer.writeLine "\${BEAVER} -d \"${parserDir}\" -t -c -w \"build/tmp/${parser.name}.beaver\""
-
-        // Generate Java code with JastAdd.
-        writer.writeLine 'echo "Generating node types and weaving aspects..."'
-
-        writer.writeLine "mkdir -p \"${outdir}\""
-        writer.writeLine "\${JASTADD} \\"
-        writer.writeLine "    --package=\"${astPackage}\" \\"
-        writer.writeLine "    --o=\"${outdir}\" \\"
-        writer.writeLine '    --rewrite=cnta \\'
-        writer.writeLine '    --safeLazy \\'
-        writer.writeLine '    --beaver \\'
-        writer.writeLine '    --visitCheck=false \\'
-        writer.write     '    --cacheCycle=false'
-        jastaddFiles.each { writer.write " \\\n    '${relpath(it)}'" }
-        writer.write ' ${EXTRA_JASTADD_SOURCES}'
-        writer.writeLine ''
-
-        // Compile the generated code.
-        writer.writeLine 'echo "Compiling Java code..."'
-        writer.writeLine 'mkdir -p build/classes/main'
-        writer.writeLine 'javac -d build/classes/main $(find src/java -name \'*.java\') \\'
-        writer.writeLine '    $(find src/gen -name \'*.java\') \\'
-        writer.writeLine '    $(find extendj/src/frontend -name \'*.java\') ${EXTRA_JAVA_SOURCES}'
-        writer.writeLine 'mkdir -p src/gen-res'
-        def date = new Date()
-        writer.writeLine "echo \"moduleName: ${module.moduleName()}\" > src/gen-res/BuildInfo.properties"
-        writer.writeLine "echo \"moduleVariant: ${module.moduleVariant()}\" >> src/gen-res/BuildInfo.properties"
-        writer.writeLine "echo \"timestamp: ${date.format("yyyy-MM-dd'T'HH:mm'Z'")}\" >> src/gen-res/BuildInfo.properties"
-        writer.writeLine "echo \"build.date: ${date.format("yyyy-MM-dd")}\" >> src/gen-res/BuildInfo.properties"
-        writer.writeLine "jar cef \"${project.jar.manifest.attributes.get('Main-Class')}\" \"${project.name}.jar\" \\"
-        writer.writeLine '    -C build/classes/main . \\'
-        writer.writeLine '    -C src/gen-res BuildInfo.properties \\'
-        writer.writeLine '    -C extendj/src/res Version.properties'
-      }
-    }
+    project.compileJava.source "${project.buildDir}/generated-src/ast"
+    project.compileJava.source "${project.buildDir}/generated-src/parser"
+    project.compileJava.source "${project.buildDir}/generated-src/scanner"
 
     project.task('generateAst', type: JavaExec) {
       description 'Generates Java sources from JastAdd code.'
 
       onlyIf { module }
 
+      def genDir = "${project.buildDir}/generated-src/ast"
       inputs.files { moduleSources + (module ? module.files(project, 'jastadd') : []) }
       outputs.dir { project.file(genDir) }
 
@@ -208,7 +129,12 @@ class JastAddExtension {
 
       doFirst {
         def outdir = project.file(genDir)
-        outdir.mkdirs()
+        if (outdir.isDirectory()) {
+          // Clean output directory.
+          project.fileTree(outdir).visit{ file -> file.getFile().delete() }
+        } else {
+          outdir.mkdirs()
+        }
         def addBeaverOption
         if (useBeaver == 'maybe') {
           addBeaverOption = !module.files(project, 'parser').isEmpty()
@@ -234,19 +160,22 @@ class JastAddExtension {
       // Generate scanner only if there are some source files.
       onlyIf { module && !module.files(project, 'scanner').isEmpty() }
 
+      def genDir = "${project.buildDir}/generated-src/scanner"
       inputs.files { moduleSources + (module ? module.files(project, 'scanner') : []) }
-      outputs.dir {
-        // This needs to be a closure so that the genDir configuration variable can be used.
-        project.file(scanner.genDir ?: "${genDir}/scanner")
-      }
+      outputs.dir { project.file(genDir) }
 
       classpath = project.configurations.jflex
       main = 'jflex.Main'
 
       doFirst {
         def inputFiles = project.files(module.files(project, 'scanner'))
-        def outdir = project.file(scanner.genDir ?: "${genDir}/scanner")
-        outdir.mkdirs()
+        def outdir = project.file(genDir)
+        if (outdir.isDirectory()) {
+          // Clean output directory.
+          project.fileTree(outdir).visit{ file -> file.getFile().delete() }
+        } else {
+          outdir.mkdirs()
+        }
         ant.concat(destfile: "${temporaryDir}/${scanner.name}.flex",
           binary: true, force: false) {
           inputFiles.addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
@@ -315,20 +244,23 @@ class JastAddExtension {
       // Generate parser only if there are some source files.
       onlyIf { module && !module.files(project, 'parser').isEmpty() }
 
+      def genDir = "${project.buildDir}/generated-src/parser"
       inputs.files {
         project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
       }
-      outputs.dir {
-        // This needs to be a closure so that the genDir configuration variable can be used.
-        project.file(parser.genDir ?: "${genDir}/parser")
-      }
+      outputs.dir { project.file(genDir) }
 
       classpath = project.configurations.beaver
       main = 'beaver.comp.run.Make'
 
       doFirst {
-        def outdir = project.file(parser.genDir ?: "${genDir}/parser")
-        outdir.mkdirs()
+        def outdir = project.file(genDir)
+        if (outdir.isDirectory()) {
+          // Clean output directory.
+          project.fileTree(outdir).visit{ file -> file.getFile().delete() }
+        } else {
+          outdir.mkdirs()
+        }
         def inputFile = project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
         args ([ '-d', outdir.path, '-t', '-c', '-w', inputFile.path ])
       }
@@ -336,7 +268,7 @@ class JastAddExtension {
 
     project.task('buildInfo') {
       description 'Generates a property file with the module name.'
-      outputs.dir { project.file(buildInfoDir ?: "${genDir}/buildinfo") }
+      outputs.dir { if (buildInfoDir != null) project.file(buildInfoDir) }
 
       // Generate build info only if buildInfoDir is set.
       onlyIf { module && !(buildInfoDir ?: "").isEmpty() }
@@ -359,10 +291,10 @@ class JastAddExtension {
       description 'Removes generated files.'
       delete {
         def dirs = [
-          scanner.genDir,
-          parser.genDir,
-          buildInfoDir,
-          genDir
+          "${project.buildDir}/generated-src/ast",
+          "${project.buildDir}/generated-src/scanner",
+          "${project.buildDir}/generated-src/parser",
+          buildInfoDir
         ]
         dirs.removeAll([null])
         dirs
@@ -415,7 +347,6 @@ class JastAddExtension {
   String javaVersion
 
   String astPackage
-  String genDir
   String buildInfoDir
 
   /** Set to {@code true} or {@code false} in JastAdd configuration. */

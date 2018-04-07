@@ -82,7 +82,7 @@ class ParserGeneratorSpec extends Specification {
     then:
     result.task(':generateParser').outcome == TaskOutcome.SUCCESS
 
-    Path parserDir = testProjectDir.root.toPath().resolve('src/gen/parser')
+    Path parserDir = testProjectDir.root.toPath().resolve('build/generated-src/parser')
     Files.exists(parserDir)
     Files.exists(parserDir.resolve('Parser.java'))
   }
