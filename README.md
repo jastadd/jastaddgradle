@@ -7,10 +7,15 @@ Gradle plugin for [JastAdd][1] development.
 Can be used just to generate Java code using JastAdd, or for building a
 modular project using JFlex and Beaver for scanner and parser generation.
 
-## Add the plugin to your build
+## Gradle Compatibility
 
-The JastAdd Gradle plugin is only tested with Gradle 3.5, but it should work
-for later Gradle versions.
+This plugin is tested with the following Gradle versions:
+
+* 2.13
+* 3.5
+* 4.5
+
+## Add the plugin to your build
 
 To add the plugin to your project, add this to your `build.gradle` file:
 
@@ -88,6 +93,16 @@ option to Gradle when building your project.
 
 If an AST class has been deleted, it is usually necessary to run `./gradlew
 clean` to ensure that the generated class is removed.
+
+## Changing JastAdd Version
+
+The JastAdd Gradle plugin sets a default JastAdd version for code generation,
+but you can change this by specifying any version you would like to use. Just
+add a dependency for the `jastadd2` configuration in your build script:
+
+    dependencies {
+      jastadd2 "org.jastadd:jastadd:2.3.0"
+    }
 
 
 ### Example build

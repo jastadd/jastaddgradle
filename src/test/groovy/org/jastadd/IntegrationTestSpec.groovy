@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018, Jesper Öqvist
+/* Copyright (c) 2018, Jesper Öqvist
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,84 +30,68 @@
 package org.jastadd
 
 import org.gradle.testkit.runner.GradleRunner
-import static org.gradle.testkit.runner.TaskOutcome.*
+import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.Unroll
 
-class JastAddTaskSpec extends Specification {
+class IntegrationTestSpec extends Specification {
   @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
-  File genDir
   File buildFile
-  File grammarFile
 
   def setup() {
-    genDir = testProjectDir.newFolder('gen')
     buildFile = testProjectDir.newFile('build.gradle')
-    grammarFile = testProjectDir.newFile('grammar.ast')
   }
 
-  def 'generating single AST node with JastAddTask'() {
-    def genPath = genDir.absolutePath.replace('\\', '\\\\')
-    def grammarPath = grammarFile.absolutePath.replace('\\', '\\\\')
-
+  @Unroll
+  def 'build passes with Gradle #gradleVersion'() {
     given:
-    grammarFile << """A;"""
     buildFile << """
-      plugins {
-        id 'java'
-        id 'jastadd'
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      modules {
+        module("funlang") {
+          moduleName "FunLang 1.0"
+          moduleVariant "backend"
+
+          jastadd {
+            include "*.ast"
+          }
+        }
       }
 
-      task generateJava(type: org.jastadd.JastAddTask) {
-        outputDir = file('${genPath}')
-        sources = files('${grammarPath}')
-      }
+      module = 'funlang'
+
+      astPackage = 'ast'
+    }
+    """
+    File astFile = testProjectDir.newFile('funlang.ast')
+    astFile << """
+    Program ::= Fun*;
+    Fun ::= <ID> Param*;
+    Param ::= <ID>;
     """
 
     when:
     def result = GradleRunner.create()
+        .withGradleVersion(gradleVersion)
         .withProjectDir(testProjectDir.root)
+        .withArguments('compileJava')
         .withPluginClasspath()
-        .withArguments('--info', 'generateJava')
         .build()
 
     then:
-    !result.output.contains('Configuring JastAdd')
-    new File(genDir, 'A.java').isFile()
-  }
+    result.task(':generateAst').outcome == TaskOutcome.SUCCESS
+    result.task(':compileJava').outcome == TaskOutcome.SUCCESS
 
-  def 'changing JastAdd version dependency'() {
-    def genPath = genDir.absolutePath.replace('\\', '\\\\')
-    def grammarPath = grammarFile.absolutePath.replace('\\', '\\\\')
-
-    given:
-    grammarFile << """A;"""
-    buildFile << """
-      plugins {
-        id 'java'
-        id 'jastadd'
-      }
-
-      dependencies {
-        jastadd2 'org.jastadd:jastadd:2.3.0'
-      }
-
-      task generateJava(type: org.jastadd.JastAddTask) {
-        outputDir = file('${genPath}')
-        sources = files('${grammarPath}')
-      }
-    """
-
-    when:
-    def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
-        .withPluginClasspath()
-        .withArguments('--info', 'generateJava')
-        .build()
-
-    then:
-    !result.output.contains('Configuring JastAdd')
-    new File(genDir, 'A.java').isFile()
+    where:
+    gradleVersion << [ '2.13', '3.5', '4.5' ]
   }
 }
