@@ -563,7 +563,7 @@ class ModularBuildSpec extends Specification {
     result.task(':compileJava').outcome == TaskOutcome.SUCCESS
   }
 
-  def 'unknown module error'() {
+  def 'unknown/missing module error'() {
     given:
     buildFile << """
     plugins {
@@ -594,4 +594,79 @@ class ModularBuildSpec extends Specification {
     then:
     result.output.contains('Unknown JastAdd module "funlang".')
   }
+
+  def 'extra JastAdd options'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'jastadd'
+      }
+
+      jastadd {
+        configureModuleBuild()
+
+        modules {
+          module ("barebones") {
+            jastadd {
+              include '*.ast'
+            }
+          }
+        }
+
+        module = "barebones"
+
+        // This causes warning because --safeLazy is already in the default options.
+        extraJastAddOptions = [ '--safeLazy' ]
+      }
+    """
+    testProjectDir.newFile('barebones.ast') << "R;"
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('generateAst')
+        .build()
+
+    then:
+    result.output.contains('option safeLazy occurs more than once')
+  }
+
+  def 'changing default JastAdd options'() {
+    given:
+    buildFile << """
+      plugins {
+        id 'java'
+        id 'jastadd'
+      }
+
+      jastadd {
+        configureModuleBuild()
+
+        modules {
+          module ("barebones") {
+            jastadd {
+              include '*.ast'
+            }
+          }
+        }
+
+        module = "barebones"
+        jastaddOptions = [ '--List=foo', '--List=bar' ]
+      }
+    """
+    testProjectDir.newFile('barebones.ast') << "R;"
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withPluginClasspath()
+        .withArguments('generateAst')
+        .build()
+
+    then:
+    result.output.contains('option List occurs more than once')
+  }
+
 }

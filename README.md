@@ -13,6 +13,7 @@ This plugin is tested with the following Gradle versions:
 
 * 2.13
 * 3.5
+* 4.4.1
 * 4.5
 
 ## Add the plugin to your build
@@ -20,7 +21,7 @@ This plugin is tested with the following Gradle versions:
 To add the plugin to your project, add this to your `build.gradle` file:
 
     plugins {
-      id "org.jastadd" version "1.13.0"
+      id "org.jastadd" version "1.13.1"
     }
 
 
@@ -154,6 +155,34 @@ A module file can look like this:
 The `imports` statement is used to add a dependency to some other module.
 The included files from all transitive dependencies are included into the
 current module files.
+
+## Changing JastAdd Options
+
+The JastAdd Gradle plugin by default adds these options to the JastAdd code generation command:
+
+    --rewrite=cnta
+    --safeLazy
+    --visitCheck=false
+    --cacheCycle=false
+
+
+These default options can be changed by specifying the `jastaddOptions`
+configuration setting inside the `jastadd` block in `build.gradle`. For example:
+
+    jastadd {
+      configureModuleBuild()
+
+      modules {
+        module ("example") {
+          jastadd {
+            include '*.ast'
+          }
+        }
+      }
+
+      module = "example"
+      jastaddOptions = [ "--rewrite=none", "--visitCheck=true" ]
+    }
 
 
 ## Example Projects

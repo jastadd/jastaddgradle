@@ -142,13 +142,11 @@ class JastAddExtension {
           addBeaverOption = useBeaver
         }
         def beaverOption = addBeaverOption ? [ '--beaver' ] : []
-        args ([ '--rewrite=cnta',
-            '--safeLazy',
-            "--package=${astPackage}",
-            '--visitCheck=false',
-            '--cacheCycle=false',
+        args (
+            [ "--package=${astPackage}",
             "--o=${outdir.path}" ]
             + beaverOption
+            + jastaddOptions
             + extraJastAddOptions
             + module.files(project, 'jastadd'))
       }
@@ -351,7 +349,20 @@ class JastAddExtension {
 
   /** Set to {@code true} or {@code false} in JastAdd configuration. */
   def useBeaver = 'maybe'
+
+  /**
+   * Default set of JastAdd options
+   * (excluding package name, beaver setting, and output directory).
+   */
+  List<String> jastaddOptions = [
+      '--rewrite=cnta',
+      '--safeLazy',
+      '--visitCheck=false',
+      '--cacheCycle=false' ];
+
+  /** List of extra options to append to the default option list. */
   List<String> extraJastAddOptions = [];
+
   ScannerConfig scanner = new ScannerConfig()
   ParserConfig parser = new ParserConfig()
 
