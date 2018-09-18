@@ -111,6 +111,7 @@ class JastAddExtension {
       deps.add(project.dependencies.create('net.sf.beaver:beaver-ant:0.9.11'))
     }
 
+    // TODO: Should we use project.sourceSets.main.java.srcDir instead?
     project.compileJava.source "${project.buildDir}/generated-src/ast"
     project.compileJava.source "${project.buildDir}/generated-src/parser"
     project.compileJava.source "${project.buildDir}/generated-src/scanner"
