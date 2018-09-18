@@ -55,11 +55,31 @@ class JastAddPlugin implements Plugin<Project> {
 class ScannerConfig {
   /** The name of the generated scanner (default="Scanner"). */
   String name = 'Scanner'
+
+  /**
+   * Directory to generate scanner in.
+   * Defaults to build/generated-src/scanner.
+   */
+  String genDir
+
+  ScannerConfig(Project project) {
+    this.genDir = project.file("${project.buildDir}/generated-src/scanner")
+  }
 }
 
 class ParserConfig {
   /** Generated parser name (default="Parser"). */
   String name = 'Parser'
+
+  /**
+   * Directory to generate parser in.
+   * Defaults to build/generated-src/parser.
+   */
+  String genDir
+
+  ParserConfig(Project project) {
+    this.genDir = project.file("${project.buildDir}/generated-src/parser")
+  }
 }
 
 class JastAddExtension {
@@ -81,6 +101,9 @@ class JastAddExtension {
     loader = new ModuleLoader(this)
     this.project = project
     this.ragroot = project.rootDir
+    this.genDir = project.file("${project.buildDir}/generated-src/ast")
+    this.scanner = new ScannerConfig(project)
+    this.parser = new ParserConfig(project)
   }
 
   void configureModuleBuild() {
@@ -121,9 +144,11 @@ class JastAddExtension {
 
       onlyIf { module }
 
-      def genDir = "${project.buildDir}/generated-src/ast"
       inputs.files { moduleSources + (module ? module.files(project, 'jastadd') : []) }
-      outputs.dir { project.file(genDir) }
+      outputs.dir {
+        // This closure is needed to delay reading the genDir setting.
+        project.file(genDir)
+      }
 
       classpath = project.configurations.jastadd2
       main = 'org.jastadd.JastAdd'
@@ -159,16 +184,18 @@ class JastAddExtension {
       // Generate scanner only if there are some source files.
       onlyIf { module && !module.files(project, 'scanner').isEmpty() }
 
-      def genDir = "${project.buildDir}/generated-src/scanner"
       inputs.files { moduleSources + (module ? module.files(project, 'scanner') : []) }
-      outputs.dir { project.file(genDir) }
+      outputs.dir {
+        // This closure is needed to delay reading the genDir setting.
+        project.file(scanner.genDir)
+      }
 
       classpath = project.configurations.jflex
       main = 'jflex.Main'
 
       doFirst {
         def inputFiles = project.files(module.files(project, 'scanner'))
-        def outdir = project.file(genDir)
+        def outdir = project.file(scanner.genDir)
         if (outdir.isDirectory()) {
           // Clean output directory.
           project.fileTree(outdir).visit{ file -> file.getFile().delete() }
@@ -247,13 +274,16 @@ class JastAddExtension {
       inputs.files {
         project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
       }
-      outputs.dir { project.file(genDir) }
+      outputs.dir {
+        // This closure is needed to delay reading the genDir setting.
+        project.file(parser.genDir)
+      }
 
       classpath = project.configurations.beaver
       main = 'beaver.comp.run.Make'
 
       doFirst {
-        def outdir = project.file(genDir)
+        def outdir = project.file(parser.genDir)
         if (outdir.isDirectory()) {
           // Clean output directory.
           project.fileTree(outdir).visit{ file -> file.getFile().delete() }
@@ -348,6 +378,9 @@ class JastAddExtension {
   String astPackage
   String buildInfoDir
 
+  /** AST generation directory. Defaults to build/generated-src/ast. */
+  String genDir
+
   /** Set to {@code true} or {@code false} in JastAdd configuration. */
   def useBeaver = 'maybe'
 
@@ -364,8 +397,8 @@ class JastAddExtension {
   /** List of extra options to append to the default option list. */
   List<String> extraJastAddOptions = [];
 
-  ScannerConfig scanner = new ScannerConfig()
-  ParserConfig parser = new ParserConfig()
+  ScannerConfig scanner
+  ParserConfig parser
 
   public void addModule(module) {
     modules.add module

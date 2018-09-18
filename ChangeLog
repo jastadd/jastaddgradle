@@ -1,3 +1,13 @@
+1.13.2 - 2018-09-18
+  * Re-introduced the genDir configuration settings: jastadd.genDir,
+    jastadd.parser.genDir, and jastadd.scanner.genDir.
+    These were previously removed following Gradle plugin best practices.
+    They are added back now to allow more flexibility for users.
+    The default genDir settings will continue to point to the
+    Gradle build directory (build/generated-src/...), and changing
+    the jastadd.genDir setting no longer automatically affects
+    jastadd.parser.genDir or jastadd.scanner.genDir.
+
 1.13.1 - 2018-07-25
   * Added new configuration setting: jastaddOptions. This option replaces
     the default JastAdd options (safeLazy, rewrite=cnta, etc.) to give

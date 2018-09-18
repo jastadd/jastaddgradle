@@ -669,4 +669,77 @@ class ModularBuildSpec extends Specification {
     result.output.contains('option List occurs more than once')
   }
 
+  def 'changing code generation output directory'() {
+    given:
+    File testDir = new File('testdir')
+    testDir.mkdir()
+    File settings = testProjectDir.newFile('settings.gradle')
+    settings << """
+    rootProject.name = "funlang"
+    """
+    buildFile << """
+    plugins {
+      id 'java'
+      id 'jastadd'
+    }
+
+    jastadd {
+      configureModuleBuild()
+
+      modules {
+        module("funlang") {
+          jastadd {
+            include "*.ast"
+          }
+          parser {
+            include "*.beaver"
+          }
+          scanner {
+            include "*.flex"
+          }
+        }
+      }
+      module 'funlang'
+
+      astPackage = 'ast'
+      genDir = 'my-gendir'
+      scanner.genDir = 'my-scanner'
+      parser.genDir = 'my-parser'
+    }
+    """
+    File astFile = testProjectDir.newFile('funlang.ast')
+    astFile << "Fun;"
+    File parser = testProjectDir.newFile('funlang.beaver')
+    parser << """%goal goal;
+goal = ;
+"""
+    File scanner = testProjectDir.newFile('funlang.flex')
+    scanner << """%%
+%class FunScan
+%%
+[^] { }
+"""
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('generateAst', 'generateScanner', 'generateParser')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.task(':generateAst').outcome == TaskOutcome.SUCCESS
+    result.task(':generateParser').outcome == TaskOutcome.SUCCESS
+    result.task(':generateScanner').outcome == TaskOutcome.SUCCESS
+
+    // Check that JastAdd generated AST source files:
+    File genDir = new File(testProjectDir.getRoot(), 'my-gendir')
+    genDir.exists()
+    File ast = new File(genDir, 'ast')
+    ast.exists()
+    new File(ast, 'Fun.java').exists()
+    new File(testProjectDir.getRoot(), 'my-parser').exists()
+    new File(testProjectDir.getRoot(), 'my-scanner').exists()
+  }
+
 }
