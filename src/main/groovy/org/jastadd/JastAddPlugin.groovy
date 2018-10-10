@@ -104,6 +104,7 @@ class JastAddExtension {
     this.genDir = project.file("${project.buildDir}/generated-src/ast")
     this.scanner = new ScannerConfig(project)
     this.parser = new ParserConfig(project)
+    this.buildInfoDir = "${project.buildDir}/generated-resources/jastadd"
   }
 
   void configureModuleBuild() {
@@ -297,21 +298,17 @@ class JastAddExtension {
 
     project.task('buildInfo') {
       description 'Generates a property file with the module name.'
-      outputs.dir { if (buildInfoDir != null) project.file(buildInfoDir) }
-
-      // Generate build info only if buildInfoDir is set.
-      onlyIf { module && !(buildInfoDir ?: "").isEmpty() }
+      outputs.file { "${buildInfoDir}/BuildInfo.properties" }
 
       doLast {
-        if (buildInfoDir) {
-          def date = new Date()
-          ant.mkdir dir: "${buildInfoDir}"
-          ant.propertyfile(file: "${buildInfoDir}/BuildInfo.properties") {
-            entry(key: 'moduleName', value: module.moduleName())
-            entry(key: 'moduleVariant', value: module.moduleVariant())
-            entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
-            entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
-          }
+        def date = new Date()
+        ant.mkdir dir: "${buildInfoDir}"
+        ant.propertyfile(file: "${buildInfoDir}/BuildInfo.properties") {
+          entry(key: 'moduleId', value: module.name)
+          entry(key: 'moduleName', value: module.moduleName())
+          entry(key: 'moduleVariant', value: module.moduleVariant())
+          entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
+          entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
         }
       }
     }
@@ -319,14 +316,12 @@ class JastAddExtension {
     project.task('cleanGen', type: Delete) {
       description 'Removes generated files.'
       delete {
-        def dirs = [
+        [
+          "${project.buildDir}/generated-resources/jastadd",
           "${project.buildDir}/generated-src/ast",
           "${project.buildDir}/generated-src/scanner",
           "${project.buildDir}/generated-src/parser",
-          buildInfoDir
         ]
-        dirs.removeAll([null])
-        dirs
       }
     }
 
@@ -376,10 +371,12 @@ class JastAddExtension {
   String javaVersion
 
   String astPackage
-  String buildInfoDir
 
   /** AST generation directory. Defaults to build/generated-src/ast. */
   String genDir
+
+  /** Directory where BuildInfo.properties is generated (including build timestamp). */
+  String buildInfoDir
 
   /** Set to {@code true} or {@code false} in JastAdd configuration. */
   def useBeaver = 'maybe'

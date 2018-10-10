@@ -1,3 +1,8 @@
+1.13.3 - 2018-10-10
+  * Added moduleId to the BuildInfo.properties file.
+  * BuildInfo.properties is always generated. The buildInfoDir setting has
+    the new default value "${project.buildDir}/generated-src/jastadd".
+
 1.13.2 - 2018-09-18
   * Re-introduced the genDir configuration settings: jastadd.genDir,
     jastadd.parser.genDir, and jastadd.scanner.genDir.
