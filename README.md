@@ -11,10 +11,14 @@ modular project using JFlex and Beaver for scanner and parser generation.
 
 This plugin is tested with the following Gradle versions:
 
-* 2.13
+* 2.8
 * 3.5
 * 4.4.1
 * 4.5
+
+The Plugin is NOT compatible with these Gradle versions:
+
+* 2.7
 
 ## Add the plugin to your build
 

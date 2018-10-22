@@ -92,6 +92,6 @@ class IntegrationTestSpec extends Specification {
     result.task(':compileJava').outcome == TaskOutcome.SUCCESS
 
     where:
-    gradleVersion << [ '2.13', '3.5', '4.4.1', '4.5' ]
+    gradleVersion << [ '2.8', '3.5', '4.4.1', '4.5' ]
   }
 }
