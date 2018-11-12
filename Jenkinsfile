@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 node {
-	env.JAVA_HOME="${tool 'oracle-jdk-7'}"
+	env.JAVA_HOME="${tool 'oracle-jdk-8'}"
 	env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
 
 	stage('Checkout') {
