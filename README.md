@@ -185,6 +185,7 @@ configuration setting inside the `jastadd` block in `build.gradle`. For example:
       }
 
       module = "example"
+      astPackage = "example"
       jastaddOptions = [ "--rewrite=none", "--visitCheck=true" ]
     }
 
