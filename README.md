@@ -60,6 +60,7 @@ Non-modular builds can be set up using the Gradle task
     task generateJava(type: org.jastadd.JastAddTask) {
       outputDir = file('src/gen')
       sources = fileTree('src/jastadd')
+      options = [ "--package=my.ast" ]
     }
 
 
