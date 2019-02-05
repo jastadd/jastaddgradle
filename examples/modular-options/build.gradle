@@ -1,0 +1,21 @@
+plugins {
+  id "java"
+  id "org.jastadd" version "1.13.3"
+}
+
+jastadd {
+  configureModuleBuild()
+
+  modules {
+    module ("example") {
+      jastadd {
+        include 'lang/*.ast'
+        include 'lang/*.jrag'
+      }
+    }
+  }
+
+  module = "example"
+  astPackage = "example"
+  jastaddOptions = [ "--concurrent", "--safeLazy", "--rewrite=cnta" ]
+}
