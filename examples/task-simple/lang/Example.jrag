@@ -1,0 +1,3 @@
+aspect Example {
+  syn int A.x() = 101;
+}

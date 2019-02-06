@@ -1,0 +1,29 @@
+plugins {
+  id "java"
+  id "org.jastadd" version "1.13.3"
+}
+
+compileJava.dependsOn("generateAst")
+clean.dependsOn("cleanAst")
+
+task generateAst(type: org.jastadd.JastAddTask) {
+  outputDir = file("src/gen")
+  sources = fileTree("lang")
+  options = [ "--package=lang" ] // JastAdd options.
+
+  doFirst {
+    file('src/gen').mkdirs() // Ensure the output directory exists before running JastAdd.
+  }
+}
+
+task cleanAst(type: Delete) {
+  delete "src/gen"
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir "src/gen"
+    }
+  }
+}
