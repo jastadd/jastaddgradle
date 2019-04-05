@@ -1,0 +1,48 @@
+plugins {
+  id "java"
+  id "org.jastadd" version "1.13.3"
+}
+
+defaultTasks 'jar'
+
+if (!file('extendj/jastadd_modules').exists()) {
+  throw new GradleException('ExtendJ seems to be missing. Please run "git submodule init", then "git submodule update".')
+}
+
+jastadd {
+  configureModuleBuild()
+
+  modules {
+    include("extendj/jastadd_modules") // Include core ExtendJ modules.
+
+    module "example", {
+      imports "java8 frontend" // ExtendJ dependency for template module.
+
+      jastadd {
+        basedir "src/jastadd/"
+        include "**/*.jrag"
+      }
+    }
+  }
+
+  module = "example"
+  astPackage = 'org.extendj.ast'
+  parser.name = 'JavaParser'
+  scanner.name = 'OriginalScanner'
+}
+
+sourceSets.main {
+  java {
+    srcDir 'extendj/src/frontend-main'
+  }
+  resources {
+    srcDir 'extendj/src/res'
+    srcDir jastadd.buildInfoDir
+  }
+}
+
+jar.manifest.attributes 'Main-Class': 'org.extendj.JavaChecker'
+jar.destinationDir = projectDir
+
+// Java -source and -target version.
+sourceCompatibility = targetCompatibility = '1.7'

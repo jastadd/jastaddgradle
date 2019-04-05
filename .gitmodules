@@ -1,0 +1,3 @@
+[submodule "examples/modular-extendj/extendj"]
+	path = examples/modular-extendj/extendj
+	url = https://bitbucket.org/extendj/extendj.git

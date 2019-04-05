@@ -1,0 +1,9 @@
+/**
+ * Adds a simple error check for the string-equality comparison problem.
+ */
+aspect StringEqCheck {
+  EQExpr contributes error("String equality testing should be done with .equals()!")
+      when left().type().isString() && right().type().isString()
+      to CompilationUnit.problems();
+}
+
