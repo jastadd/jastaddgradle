@@ -25,6 +25,7 @@ class JastAddTask extends JavaExec {
   def options = []
 
   JastAddTask() {
+    setMain('org.jastadd.JastAdd')
     setClasspath(project.configurations.jastadd2)
     outputDir = project.file('src/gen')
   }
@@ -36,11 +37,5 @@ class JastAddTask extends JavaExec {
     outputDir.eachFile { it.delete() }
     args = [ "--o=$outputDir" ] + options + sources.files
     super.exec();
-  }
-
-  @Override
-  Task configure(Closure closure) {
-    conventionMapping("main") { 'org.jastadd.JastAdd' }
-    return super.configure(closure)
   }
 }
