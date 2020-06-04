@@ -2,6 +2,7 @@ package org.jastadd
 
 import java.io.File
 
+import org.gradle.api.Task
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
@@ -34,7 +35,6 @@ class JastAddTask extends JavaExec {
   public void exec() {
     // First, clean the destination directory so old generated files are removed.
     outputDir.eachFile { it.delete() }
-    main = 'org.jastadd.JastAdd'
     args = [ "--o=$outputDir" ] + options + sources.files
     super.exec();
   }
