@@ -3,3 +3,9 @@
 ++ Dependency on inline module specification.
 ++ Rename configureModuleBuild() to configureModularBuild().
 -- Generate warning if include rule does not match any files.
+
+
+Check the cause of the following warning from publishing:
+
+	> Task :publishPluginMavenPublicationToMavenRepository
+	Multiple publications with coordinates 'org.jastadd:jastaddgradle:1.14.1' are published to repository 'maven'. The publications will overwrite each other!
