@@ -24,7 +24,7 @@ class JastAddTask extends JavaExec {
   def options = []
 
   JastAddTask() {
-    setMain('org.jastadd.JastAdd')
+    mainClass.set('org.jastadd.JastAdd')
     setClasspath(project.configurations.jastadd2)
     outputDir = project.file('src/gen')
   }
@@ -34,7 +34,6 @@ class JastAddTask extends JavaExec {
   public void exec() {
     // First, clean the destination directory so old generated files are removed.
     outputDir.eachFile { it.delete() }
-    main = 'org.jastadd.JastAdd'
     args = [ "--o=$outputDir" ] + options + sources.files
     super.exec();
   }

@@ -1,0 +1,5 @@
+-- Output generated code in $buildDir/generated/{ast,parser,scanner}
+++ Clean generated source dirs before regenerating sources (Fixes problems when removing an AST class).
+++ Dependency on inline module specification.
+++ Rename configureModuleBuild() to configureModularBuild().
+-- Generate warning if include rule does not match any files.

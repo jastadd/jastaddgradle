@@ -9,14 +9,13 @@ modular project using JFlex and Beaver for scanner and parser generation.
 
 ## Gradle Compatibility
 
-This plugin is tested with the following Gradle versions:
+This plugin is integration tested with the following Gradle versions:
 
-* 2.8
-* 3.5
-* 4.4.1
-* 4.5
+* 6.0.1
+* 6.9.1
+* 7.2
 
-The Plugin is NOT compatible with these Gradle versions:
+The Plugin is known to not work with these Gradle versions:
 
 * 2.7
 
@@ -55,7 +54,7 @@ Non-modular builds can be set up using the Gradle task
 
     plugins {
       id "java"
-      id "org.jastadd" version "1.13.0"
+      id "org.jastadd" version "1.14.0"
     }
     task generateJava(type: org.jastadd.JastAddTask) {
       outputDir = file('src/gen')

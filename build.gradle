@@ -1,27 +1,26 @@
 plugins {
   id 'groovy'
-  id 'maven'
+  id 'maven-publish'
   id 'signing'
   id 'java-gradle-plugin'
-  id "com.gradle.plugin-publish" version "0.9.9"
+  id "com.gradle.plugin-publish" version "0.14.0"
 }
 
-project.version = '1.13.3'
-project.group = 'org.jastadd'
-project.archivesBaseName = 'jastaddgradle'
+group = 'org.jastadd'
+version = '1.14.0'
 
 // Ensure the plugin runs with Java 7.
 sourceCompatibility = targetCompatibility = '1.7'
 
 repositories {
-  jcenter()
+  mavenCentral()
 }
 
 dependencies {
-  compile gradleApi()
-  compile localGroovy()
+  implementation gradleApi()
+  implementation localGroovy()
 
-  testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+  testImplementation('org.spockframework:spock-core:1.0-groovy-2.4') {
     exclude module: 'groovy-all'
   }
 }
@@ -30,68 +29,68 @@ test {
   testLogging.exceptionFormat = "full"
 }
 
-task wrapper(type: Wrapper) {
-  gradleVersion = '3.5'
+java {
+  withJavadocJar()
+  withSourcesJar()
 }
 
-task javadocJar(type: Jar) {
-  classifier = 'javadoc'
-  from javadoc
-}
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifactId = 'jastaddgradle'
+      from components.java
 
-task sourcesJar(type: Jar) {
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
+      versionMapping {
+        usage('java-api') {
+          fromResolutionOf('runtimeClasspath')
+        }
+        usage('java-runtime') {
+          fromResolutionResult()
+        }
+      }
 
-artifacts {
-  archives javadocJar, sourcesJar
+      pom {
+        name = 'JastAddGradle'
+        description = 'A Gradle build plugin for building JastAdd projects.'
+        url = 'https://github.com/jastadd/jastaddgradle'
+        licenses {
+          license {
+            name = 'Modified BSD License'
+            url = 'http://opensource.org/licenses/BSD-3-Clause'
+            distribution = 'repo'
+          }
+        }
+        developers {
+          developer {
+            name = 'Jesper Öqvist'
+            email = 'jesper.oqvist@cs.lth.se'
+          }
+        }
+        scm {
+          connection = 'scm:git:https://bitbucket.org/joqvist/jastaddgradle.git'
+          url = 'https://bitbucket.org/joqvist/jastaddgradle'
+        }
+      }
+    }
+  }
+  repositories {
+    maven {
+      url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+      credentials {
+        username = ossrhUsername
+        password = ossrhPassword
+      }
+
+      // Local repository = 'localPluginRepo'
+      // Snapshot repoitory = 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+  }
 }
 
 signing {
   // Skip signing if there is no key configured:
   required { project.hasProperty('signing.keyId') }
-  sign configurations.archives
-}
-
-if (project.hasProperty('ossrhUsername')) {
-  uploadArchives {
-    repositories.mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-      repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
-      }
-
-      snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
-      }
-
-      pom.project {
-        name 'JastAddGradle'
-        packaging 'jar'
-        description 'A Gradle build plugin for building JastAdd projects.'
-        url 'https://github.com/jastadd/jastaddgradle'
-        licenses {
-          license {
-            name 'Modified BSD License'
-            url 'http://opensource.org/licenses/BSD-3-Clause'
-            distribution 'repo'
-          }
-        }
-        developers {
-          developer {
-            name 'Jesper Öqvist'
-            email 'jesper.oqvist@cs.lth.se'
-          }
-        }
-        scm {
-          connection 'scm:git:https://bitbucket.org/joqvist/jastaddgradle.git'
-          url 'https://bitbucket.org/joqvist/jastaddgradle'
-        }
-      }
-    }
-  }
+  sign publishing.publications.mavenJava
 }
 
 pluginBundle {
@@ -99,11 +98,21 @@ pluginBundle {
   vcsUrl = 'https://github.com/jastadd/jastaddgradle'
   description = 'Modular JastAdd project build plugin.'
   tags = [ 'jastadd', 'codegen' ]
+}
 
+gradlePlugin {
   plugins {
     jastaddPlugin {
       id = 'org.jastadd'
       displayName = 'JastAdd Gradle plugin'
+      description = 'Plugin for building JastAdd projects with Gradle.'
+      implementationClass = 'org.jastadd.JastAddPlugin'
     }
+  }
+}
+
+javadoc {
+  if(JavaVersion.current().isJava9Compatible()) {
+    options.addBooleanOption('html5', true)
   }
 }
