@@ -152,7 +152,7 @@ class JastAddExtension {
       }
 
       classpath = project.configurations.jastadd2
-      main = 'org.jastadd.JastAdd'
+      mainClass = 'org.jastadd.JastAdd'
 
       doFirst {
         def outdir = project.file(genDir)
@@ -192,7 +192,7 @@ class JastAddExtension {
       }
 
       classpath = project.configurations.jflex
-      main = 'jflex.Main'
+      mainClass = 'jflex.Main'
 
       doFirst {
         def inputFiles = project.files(module.files(project, 'scanner'))
@@ -222,7 +222,7 @@ class JastAddExtension {
         project.files(module.files(project, 'java')) + project.sourceSets.main.allJava.files
       }
 
-      main = 'org.extendj.ragdoc.RagDocBuilder'
+      mainClass = 'org.extendj.ragdoc.RagDocBuilder'
 
       doFirst {
         def destDir = new File(project.docsDir, 'ragdoc')
@@ -251,7 +251,7 @@ class JastAddExtension {
       }
 
       classpath = project.configurations.jastaddParser
-      main = 'org.jastadd.jastaddparser.Main'
+      mainClass = 'org.jastadd.jastaddparser.Main'
 
       doFirst {
         def inputFiles = project.files(module.files(project, 'parser'))
@@ -281,14 +281,11 @@ class JastAddExtension {
       }
 
       classpath = project.configurations.beaver
-      main = 'beaver.comp.run.Make'
+      mainClass = 'beaver.comp.run.Make'
 
       doFirst {
         def outdir = project.file(parser.genDir)
-        if (outdir.isDirectory()) {
-          // Clean output directory.
-          project.fileTree(outdir).visit{ file -> file.getFile().delete() }
-        } else {
+        if (!outdir.isDirectory()) {
           outdir.mkdirs()
         }
         def inputFile = project.file("${project.preprocessParser.temporaryDir}/${parser.name}.beaver")
