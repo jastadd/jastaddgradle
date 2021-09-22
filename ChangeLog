@@ -1,3 +1,6 @@
+1.14.4 - 2021-09-22
+  * Do not re-create existing dependencies in configureModuleBuild().
+
 1.14.3 - 2021-09-22
   * Scanner output directory is no longer cleaned before generating parser
     as this could cause confusing problems when using custom output directory.

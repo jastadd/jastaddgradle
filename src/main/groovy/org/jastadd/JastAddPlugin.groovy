@@ -119,20 +119,26 @@ class JastAddExtension {
       module?.checkEmptyIncludes(project)
     }
 
-    project.configurations.create('jastaddParser')
-    project.configurations['jastaddParser'].defaultDependencies { deps ->
-      deps.add(project.dependencies.create('org.jastadd:jastaddparser:1.0.3'))
-      deps.add(project.dependencies.create('net.sf.beaver:beaver-rt:0.9.11'))
+    if (!project.configurations.find{ it.name == 'jastaddParser' }) {
+      project.configurations.create('jastaddParser')
+      project.configurations['jastaddParser'].defaultDependencies { deps ->
+        deps.add(project.dependencies.create('org.jastadd:jastaddparser:1.0.3'))
+        deps.add(project.dependencies.create('net.sf.beaver:beaver-rt:0.9.11'))
+      }
     }
 
-    project.configurations.create('jflex')
-    project.configurations['jflex'].defaultDependencies { deps ->
-      deps.add(project.dependencies.create('de.jflex:jflex:1.6.1'))
+    if (!project.configurations.find{ it.name == 'jflex' }) {
+      project.configurations.create('jflex')
+      project.configurations['jflex'].defaultDependencies { deps ->
+        deps.add(project.dependencies.create('de.jflex:jflex:1.6.1'))
+      }
     }
 
-    project.configurations.create('beaver')
-    project.configurations['beaver'].defaultDependencies { deps ->
-      deps.add(project.dependencies.create('net.sf.beaver:beaver-ant:0.9.11'))
+    if (!project.configurations.find{ it.name == 'beaver' }) {
+      project.configurations.create('beaver')
+      project.configurations['beaver'].defaultDependencies { deps ->
+        deps.add(project.dependencies.create('net.sf.beaver:beaver-ant:0.9.11'))
+      }
     }
 
     // TODO: Should we use project.sourceSets.main.java.srcDir instead?
