@@ -197,10 +197,7 @@ class JastAddExtension {
       doFirst {
         def inputFiles = project.files(module.files(project, 'scanner'))
         def outdir = project.file(scanner.genDir)
-        if (outdir.isDirectory()) {
-          // Clean output directory.
-          project.fileTree(outdir).visit{ file -> file.getFile().delete() }
-        } else {
+        if (!outdir.isDirectory()) {
           outdir.mkdirs()
         }
         ant.concat(destfile: "${temporaryDir}/${scanner.name}.flex",
