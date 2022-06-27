@@ -3,11 +3,11 @@ plugins {
   id 'maven-publish'
   id 'signing'
   id 'java-gradle-plugin'
-  id "com.gradle.plugin-publish" version "0.14.0"
+  id "com.gradle.plugin-publish" version "0.18.0"
 }
 
 group = 'org.jastadd'
-version = '1.14.4'
+version = '1.15.0'
 
 // Ensure the plugin runs with Java 7.
 sourceCompatibility = targetCompatibility = '1.7'

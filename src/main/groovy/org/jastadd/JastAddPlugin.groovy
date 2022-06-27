@@ -107,6 +107,10 @@ class JastAddExtension {
     this.buildInfoDir = "${project.buildDir}/generated-resources/jastadd"
   }
 
+  void configureModuleBuild(Project unused) {
+    configureModuleBuild()
+  }
+
   void configureModuleBuild() {
     LOG.info("Configuring JastAdd build for ${project.name}.")
 
@@ -122,7 +126,7 @@ class JastAddExtension {
     if (!project.configurations.find{ it.name == 'jastaddParser' }) {
       project.configurations.create('jastaddParser')
       project.configurations['jastaddParser'].defaultDependencies { deps ->
-        deps.add(project.dependencies.create('org.jastadd:jastaddparser:1.0.3'))
+        deps.add(project.dependencies.create('org.jastadd:jastaddparser:1.1.0'))
         deps.add(project.dependencies.create('net.sf.beaver:beaver-rt:0.9.11'))
       }
     }
