@@ -56,7 +56,7 @@ class JastAddTaskSpec extends Specification {
     buildFile << """
       plugins {
         id 'java'
-        id 'jastadd'
+        id 'org.jastadd'
       }
 
       task generateJava(type: org.jastadd.JastAddTask) {
@@ -86,7 +86,7 @@ class JastAddTaskSpec extends Specification {
     buildFile << """
       plugins {
         id 'java'
-        id 'jastadd'
+        id 'org.jastadd'
       }
 
       dependencies {

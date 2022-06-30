@@ -50,7 +50,7 @@ class IntegrationTestSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {

@@ -48,7 +48,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
       plugins {
         id 'java'
-        id 'jastadd'
+        id 'org.jastadd'
       }
 
       jastadd {
@@ -84,7 +84,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
       plugins {
         id 'java'
-        id 'jastadd'
+        id 'org.jastadd'
       }
 
       jastadd.configureModuleBuild()
@@ -196,7 +196,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -257,7 +257,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -313,7 +313,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -372,7 +372,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -409,7 +409,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -445,7 +445,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -492,7 +492,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -568,7 +568,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
@@ -600,7 +600,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
       plugins {
         id 'java'
-        id 'jastadd'
+        id 'org.jastadd'
       }
 
       jastadd {
@@ -638,7 +638,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
       plugins {
         id 'java'
-        id 'jastadd'
+        id 'org.jastadd'
       }
 
       jastadd {
@@ -680,7 +680,7 @@ class ModularBuildSpec extends Specification {
     buildFile << """
     plugins {
       id 'java'
-      id 'jastadd'
+      id 'org.jastadd'
     }
 
     jastadd {
